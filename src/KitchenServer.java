@@ -4,6 +4,7 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Receives a new order and should init the cooking process.
@@ -19,6 +20,7 @@ public class KitchenServer extends AbstractKitchenServer implements Runnable {
     private ServerSocket serverSocket;
     private Thread thread = new Thread(this);
     private boolean serverRunning;
+    private Random random = new Random(10);
 
     public KitchenServer(int port) {
         try {
@@ -36,12 +38,32 @@ public class KitchenServer extends AbstractKitchenServer implements Runnable {
     }
 
     @Override
+    void receiveOrder(Order order) {
+        //Thread.sleep(random.nextInt());
+        cook(order);
+    }
+
+    @Override
+    void cook(Order order) {
+        //Thread.sleep(random.nextInt());
+    }
+
+    @Override
+    void checkStatus(String string) {
+
+    }
+
+    @Override
+    void serveOrder(String string) {
+
+    }
+
+    @Override
     public void run() {
         Order order = null;
         while(serverRunning) {
             try {
                 Socket socket = serverSocket.accept();
-                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
                 ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
                 try {
                     order = (Order) ois.readObject();
@@ -49,10 +71,7 @@ public class KitchenServer extends AbstractKitchenServer implements Runnable {
                 catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
-                ArrayList<OrderItem> orderList = order.getOrder();
-                for(OrderItem item : orderList) {
-                    System.out.println(item.toString());
-                }
+                receiveOrder(order);
             }
             catch (IOException e) {
                 e.printStackTrace();

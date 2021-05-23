@@ -1,5 +1,6 @@
 public abstract class AbstractOrderClient {
 
-    abstract void sendRequest(Order order);
-    abstract void pollForStatus();
+    abstract void submitOrder(Order order);
+    abstract void startPollingServer();
+    abstract void pickUpOrder();
 }

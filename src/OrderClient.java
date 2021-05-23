@@ -27,30 +27,42 @@ public class OrderClient extends AbstractOrderClient {
     }
 
     @Override
-    public void sendRequest(Order order) {
+    public void submitOrder(Order order) {
         try {
             socket = new Socket(ipAddress, port);
             oos = new ObjectOutputStream(socket.getOutputStream());
             ois = new ObjectInputStream(socket.getInputStream());
             oos.writeObject(order);
             oos.flush();
+            Status status =(Status)ois.readObject(); //status should be returned from server
+            System.out.println(status.toString());
+            startPollingServer();
         }
         catch (UnknownHostException e) {
             e.printStackTrace();
         }
-        catch (IOException e) {
+        catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public void pollForStatus() {
+    public void startPollingServer() {
         TimerTask task = new TimerTask() {
             public void run() {
                 System.out.println("polling for status");
+                //request status (chechStatus in Server)
+                //if status == Ready
+                //pickUpOrder();
             }
         };
         Timer timer = new Timer("Timer");
         timer.scheduleAtFixedRate(task, 500, 1000);
+    }
+
+    @Override
+    void pickUpOrder() {
+        //request order from server (serveOrder)
+        //get order returned
     }
 }
