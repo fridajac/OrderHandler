@@ -1,10 +1,10 @@
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Receives a new order and should init the cooking process.
@@ -20,7 +20,7 @@ public class KitchenServer extends AbstractKitchenServer implements Runnable {
     private ServerSocket serverSocket;
     private Thread thread = new Thread(this);
     private boolean serverRunning;
-    private Random random = new Random(10);
+    private ExecutorService executor = Executors.newFixedThreadPool(5);
 
     public KitchenServer(int port) {
         try {
@@ -39,6 +39,8 @@ public class KitchenServer extends AbstractKitchenServer implements Runnable {
 
     @Override
     void receiveOrder(Order order) {
+        CookingTask cookingTask = new CookingTask(order);
+        executor.submit(cookingTask);
         //Thread.sleep(random.nextInt());
         cook(order);
     }
@@ -71,6 +73,7 @@ public class KitchenServer extends AbstractKitchenServer implements Runnable {
                 catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
+                //init cooking process
                 receiveOrder(order);
             }
             catch (IOException e) {
