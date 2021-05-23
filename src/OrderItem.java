@@ -9,4 +9,13 @@ public class OrderItem {
         this.description = description;
         this.price = price;
     }
+
+    @Override
+    public String toString() {
+        return "OrderItem{" +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", price=" + price +
+                '}';
+    }
 }

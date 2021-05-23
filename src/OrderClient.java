@@ -1,3 +1,9 @@
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
 /**
  * Represent a self-service app
  * Allows a user to assemble an order, submit it to the KitchenSever and output status of the order.
@@ -7,5 +13,30 @@
 
 public class OrderClient extends AbstractOrderClient {
 
+    private String ipAddress;
+    private int port;
+    private Socket socket;
+    private ObjectOutputStream oos;
+    private ObjectInputStream ois;
 
+    public OrderClient(String ipAddress, int port) {
+        this.ipAddress = ipAddress;
+        this.port = port;
+    }
+    @Override
+    public void sendRequest (Order order) {
+        try {
+            socket = new Socket(ipAddress, port);
+            oos = new ObjectOutputStream(socket.getOutputStream());
+            ois = new ObjectInputStream(socket.getInputStream());
+            oos.writeObject(order);
+            oos.flush();
+        }
+        catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
