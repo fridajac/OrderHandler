@@ -2,7 +2,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -15,12 +14,12 @@ import java.util.concurrent.Executors;
  * You may use a CompletableFuture object to set the return value of async with the complete()-method.
  * Use newFixedThreadPool(). myPool.submit(task) to submit a task for execution.
  */
-public class KitchenServer extends AbstractKitchenServer implements Runnable {
+public class KitchenServer implements IKitchenServer, Runnable {
 
     private ServerSocket serverSocket;
-    private Thread thread = new Thread(this);
+    private Thread thread = new Thread(this); //thread that listen to new socket
     private boolean serverRunning;
-    private ExecutorService executor = Executors.newFixedThreadPool(5);
+    ExecutorService kitchenThreadPool = Executors.newFixedThreadPool(3); //represent kitchen
 
     public KitchenServer(int port) {
         try {
@@ -38,34 +37,36 @@ public class KitchenServer extends AbstractKitchenServer implements Runnable {
     }
 
     @Override
-    void receiveOrder(Order order) {
-        CookingTask cookingTask = new CookingTask(order);
-        executor.submit(cookingTask);
-        //Thread.sleep(Randomizer.getRandom());
+    public void receiveOrder(Order order) {
+        CookingTask cookingTask = new CookingTask(order); //submit a dummy task
+        kitchenThreadPool.submit(cookingTask);
+        Thread.sleep(Randomizer.getRandom());
         cook(order);
     }
 
     @Override
-    void cook(Order order) {
-        //Thread.sleep(random.nextInt());
+    public void cook(Order order) {
+        Thread.sleep(Randomizer.getRandom());
+        order.setStatus(Status.ACCEPTED);
     }
 
     @Override
-    void checkStatus(String string) {
+    public void checkStatus(String string) {
 
     }
 
     @Override
-    void serveOrder(String string) {
+    public void serveOrder(String string) {
 
     }
 
     @Override
     public void run() {
+        Socket socket = null;
         Order order = null;
         while(serverRunning) {
             try {
-                Socket socket = serverSocket.accept();
+                socket = serverSocket.accept();
                 ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
                 try {
                     order = (Order) ois.readObject();
@@ -78,6 +79,14 @@ public class KitchenServer extends AbstractKitchenServer implements Runnable {
             }
             catch (IOException e) {
                 e.printStackTrace();
+            }
+            finally {
+                try {
+                    socket.close();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

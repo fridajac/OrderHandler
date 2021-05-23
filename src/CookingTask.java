@@ -17,7 +17,7 @@ public class CookingTask implements Runnable {
         catch (InterruptedException interruptedException) {
             interruptedException.printStackTrace();
         }
-        order.set(Status.SUBMITTED);
+        order.setStatus(Status.SUBMITTED);
         System.out.println("hellooo");
     }
 }

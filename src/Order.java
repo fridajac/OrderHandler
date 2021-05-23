@@ -1,5 +1,4 @@
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Order implements Serializable {
@@ -13,6 +12,10 @@ public class Order implements Serializable {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public Status getStatus() {
+        return status;
     }
 
     public void addItemToOrder(OrderItem newOrderItem) {

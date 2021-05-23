@@ -13,7 +13,7 @@ import java.util.TimerTask;
  * For setting up a periodic task, you may use Timer.scheduleAtFiedRate togehter with TimerTask.
  */
 
-public class OrderClient extends AbstractOrderClient {
+public class OrderClient implements IOrderClient {
 
     private String ipAddress;
     private int port;
@@ -61,7 +61,7 @@ public class OrderClient extends AbstractOrderClient {
     }
 
     @Override
-    void pickUpOrder() {
+    public void pickUpOrder() {
         //request order from server (serveOrder)
         //get order returned
     }
