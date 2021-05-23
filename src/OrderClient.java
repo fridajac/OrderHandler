@@ -3,6 +3,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Represent a self-service app
@@ -23,8 +25,9 @@ public class OrderClient extends AbstractOrderClient {
         this.ipAddress = ipAddress;
         this.port = port;
     }
+
     @Override
-    public void sendRequest (Order order) {
+    public void sendRequest(Order order) {
         try {
             socket = new Socket(ipAddress, port);
             oos = new ObjectOutputStream(socket.getOutputStream());
@@ -38,5 +41,16 @@ public class OrderClient extends AbstractOrderClient {
         catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void pollForStatus() {
+        TimerTask task = new TimerTask() {
+            public void run() {
+                System.out.println("polling for status");
+            }
+        };
+        Timer timer = new Timer("Timer");
+        timer.scheduleAtFixedRate(task, 500, 1000);
     }
 }
