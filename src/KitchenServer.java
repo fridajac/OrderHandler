@@ -20,6 +20,7 @@ public class KitchenServer implements IKitchenServer, Runnable {
     private Thread thread = new Thread(this); //thread that listen to new socket
     private boolean serverRunning;
     ExecutorService kitchenThreadPool = Executors.newFixedThreadPool(3); //represent kitchen
+    ExecutorService cookingThreadPool = Executors.newFixedThreadPool(3); //represent cooking
 
     public KitchenServer(int port) {
         try {
@@ -40,14 +41,12 @@ public class KitchenServer implements IKitchenServer, Runnable {
     public void receiveOrder(Order order) {
         CookingTask cookingTask = new CookingTask(order); //submit a dummy task
         kitchenThreadPool.submit(cookingTask);
-        Thread.sleep(Randomizer.getRandom());
-        cook(order);
+        cook(cookingTask);
     }
 
     @Override
-    public void cook(Order order) {
-        Thread.sleep(Randomizer.getRandom());
-        order.setStatus(Status.ACCEPTED);
+    public void cook(CookingTask cookingTask) {
+        cookingThreadPool.submit(cookingTask);
     }
 
     @Override

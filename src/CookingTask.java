@@ -4,6 +4,7 @@
 public class CookingTask implements Runnable {
 
     private Order order;
+    private Status status;
 
     public CookingTask(Order order) {
         this.order = order;
@@ -17,7 +18,6 @@ public class CookingTask implements Runnable {
         catch (InterruptedException interruptedException) {
             interruptedException.printStackTrace();
         }
-        order.setStatus(Status.SUBMITTED);
-        System.out.println("hellooo");
+        order.setStatus(status);
     }
 }

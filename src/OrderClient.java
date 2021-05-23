@@ -17,9 +17,6 @@ public class OrderClient implements IOrderClient {
 
     private String ipAddress;
     private int port;
-    private Socket socket;
-    private ObjectOutputStream oos;
-    private ObjectInputStream ois;
 
     public OrderClient(String ipAddress, int port) {
         this.ipAddress = ipAddress;
@@ -29,13 +26,13 @@ public class OrderClient implements IOrderClient {
     @Override
     public void submitOrder(Order order) {
         try {
-            socket = new Socket(ipAddress, port);
-            oos = new ObjectOutputStream(socket.getOutputStream());
-            ois = new ObjectInputStream(socket.getInputStream());
+            Socket socket = new Socket(ipAddress, port);
+            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
             oos.writeObject(order);
             oos.flush();
             Status status = (Status)ois.readObject();
-            order.setStatus(status); //set status to submitted
+            order.setStatus(status);
             startPollingServer();
         }
         catch (UnknownHostException e) {
@@ -51,9 +48,19 @@ public class OrderClient implements IOrderClient {
         TimerTask task = new TimerTask() {
             public void run() {
                 System.out.println("polling for status");
-                //request status (chechStatus in Server)
-                //if status == Ready
-                //pickUpOrder();
+                try {
+                    Socket socket = new Socket(ipAddress, port);
+                    ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+                    ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+                    //oos.writeObject(request);
+                    Order order = (Order)ois.readObject();
+                    if(order.getStatus() == Status.READY) {
+                        pickUpOrder();
+                    }
+                }
+                catch (IOException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
             }
         };
         Timer timer = new Timer("Timer");
@@ -64,5 +71,22 @@ public class OrderClient implements IOrderClient {
     public void pickUpOrder() {
         //request order from server (serveOrder)
         //get order returned
+        try {
+            Socket socket = new Socket(ipAddress, port);
+            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+            //oos.writeObject(request);
+            Order order = (Order)ois.readObject();
+            //print out time and status in GUI.
+        }
+        catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }
