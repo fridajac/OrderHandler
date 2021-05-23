@@ -1,30 +1,29 @@
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class Order implements Serializable {
 
-    private ArrayList<OrderItem> orderList;
-    private OrderStatus orderStatus;
+    private ArrayList<OrderItem> items;
+    private Status status;
 
     public Order() {
-        this.orderList = new ArrayList<OrderItem>();
-        this.orderStatus = new OrderStatus(java.time.LocalTime.now(), "New");
+        this.items = new ArrayList<OrderItem>();
     }
 
-    public void setOrderStatus(String status) {
-        orderStatus.setStatus(status);
-        orderStatus.setTime(java.time.LocalTime.now());
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public void addItemToOrder(OrderItem newOrderItem) {
-        orderList.add(newOrderItem);
+        items.add(newOrderItem);
     }
 
     public void removeItemInOrder(OrderItem orderItemToRemove) {
-        orderList.remove(orderItemToRemove);
+        items.remove(orderItemToRemove);
     }
 
     public ArrayList<OrderItem> getOrder() {
-        return orderList;
+        return items;
     }
 }

@@ -41,7 +41,7 @@ public class KitchenServer extends AbstractKitchenServer implements Runnable {
     void receiveOrder(Order order) {
         CookingTask cookingTask = new CookingTask(order);
         executor.submit(cookingTask);
-        //Thread.sleep(random.nextInt());
+        //Thread.sleep(Randomizer.getRandom());
         cook(order);
     }
 

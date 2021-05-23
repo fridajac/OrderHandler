@@ -34,8 +34,8 @@ public class OrderClient extends AbstractOrderClient {
             ois = new ObjectInputStream(socket.getInputStream());
             oos.writeObject(order);
             oos.flush();
-            OrderStatus orderStatus =(OrderStatus)ois.readObject(); //status should be returned from server
-            System.out.println(orderStatus.toString());
+            Status status = (Status)ois.readObject();
+            order.setStatus(status); //set status to submitted
             startPollingServer();
         }
         catch (UnknownHostException e) {
