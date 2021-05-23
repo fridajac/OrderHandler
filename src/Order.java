@@ -1,6 +1,7 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Order {
+public class Order implements Serializable {
 
     private ArrayList<OrderItem> orderList = new ArrayList<OrderItem>();
 

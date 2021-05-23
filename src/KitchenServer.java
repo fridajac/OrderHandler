@@ -50,7 +50,9 @@ public class KitchenServer extends AbstractKitchenServer implements Runnable {
                     e.printStackTrace();
                 }
                 ArrayList<OrderItem> orderList = order.getOrder();
-                orderList.toString();
+                for(OrderItem item : orderList) {
+                    System.out.println(item.toString());
+                }
             }
             catch (IOException e) {
                 e.printStackTrace();

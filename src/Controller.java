@@ -2,13 +2,12 @@ public class Controller {
 
     private OrderClient orderClient;
 
-    public void Controller(OrderClient orderClient) {
+    public Controller(OrderClient orderClient) {
         this.orderClient = orderClient;
-        App app = new App();
-
+        createTestOrder();
     }
 
-    private void testCreateOnOrder() {
+    private void createTestOrder() {
         Order order = new Order();
         order.addItemToOrder(new OrderItem("Sandwich", "Bread, meat, cheese, salad, vegetables, sause", 23));
         order.addItemToOrder(new OrderItem("Borscht", "Beetroot, cabbage potato, beef", 84));
