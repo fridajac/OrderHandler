@@ -1,10 +1,12 @@
-package client;
+package client.view;
+
+import client.ItemType;
+import client.controller.ClientController;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
 
 /**
  * GUI-class
@@ -201,6 +203,7 @@ public class GenericRestaurantForm {
         menuItem2Button.addActionListener(listener);
         menuItem3Button.addActionListener(listener);
         orderRemoveButton.addActionListener(listener);
+        orderSubmitButton.addActionListener(listener);
 
     }
 
@@ -225,6 +228,9 @@ public class GenericRestaurantForm {
                 String valueToDelete = orderCartArea.getSelectedValue();
                 //clientController.removeItemsFromOrder();
                 orderCartModel.removeElement(valueToDelete);
+            }
+            if(e.getSource() == orderSubmitButton) {
+                clientController.submitOrder();
             }
         }
     }

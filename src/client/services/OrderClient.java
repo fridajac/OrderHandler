@@ -1,14 +1,15 @@
-package client;
+package client.services;
 
+import client.services.AbstractOrderClient;
+import server.AbstractKitchenServer;
 import shared.Order;
+import shared.OrderStatus;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * Represent a self-service app
@@ -25,12 +26,35 @@ public class OrderClient extends AbstractOrderClient {
     public OrderClient(String ipAddress, int port) {
         this.ipAddress = ipAddress;
         this.port = port;
-
     }
 
     @Override
     public void submitOrder() {
-
+        Thread submitThread = new Thread(() -> {
+            try {
+                Socket socket = new Socket(ipAddress, port);
+                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+                //ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+                System.out.println("hejhopp");
+                oos.writeObject(super.order);
+                oos.flush();
+                System.out.println(super.order.getNamesFromOrderList());
+            }
+            catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        submitThread.start();
+        System.out.println("frida");
+        /**
+         * Start a new task with a periodic timer {@link #pollingTimer}
+         * to ask a server periodically about the order status {@link AbstractKitchenServer#checkStatus(String)}.
+         *
+         * Call {@link #pickUpOrder()} when status is {@link OrderStatus#Ready} and stop the {@link #pollingTimer}.
+         */
     }
 
     @Override

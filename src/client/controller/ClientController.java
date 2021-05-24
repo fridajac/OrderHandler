@@ -1,5 +1,7 @@
-package client;
+package client.controller;
 
+import client.services.AbstractOrderClient;
+import client.ItemType;
 import shared.OrderItem;
 
 public class ClientController {
@@ -42,5 +44,9 @@ public class ClientController {
                 orderClient.removeItemFromOrder(item3);
                 break;
         }
+    }
+
+    public void submitOrder() {
+        orderClient.submitOrder();
     }
 }

@@ -46,8 +46,35 @@ public class KitchenServer extends AbstractKitchenServer implements Runnable {
 
     @Override
     public void run() {
-
+        Socket socket = null;
+        Order order = null;
+        while (serverRunning) {
+            try {
+                socket = serverSocket.accept();
+                ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+                try {
+                    order = (Order) ois.readObject();
+                }
+                catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+                //init cooking process
+                //receiveOrder(order);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+            finally {
+                try {
+                    socket.close();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
+
 
     @Override
     public Future<OrderStatus> receiveOrder(Order order) throws InterruptedException {
@@ -92,35 +119,5 @@ public class KitchenServer extends AbstractKitchenServer implements Runnable {
 //    public void serveOrder(String string) {
 //
 //    }
-//
-//    @Override
-//    public void run() {
-//        Socket socket = null;
-//        Order order = null;
-//        while(serverRunning) {
-//            try {
-//                socket = serverSocket.accept();
-//                ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-//                try {
-//                    order = (Order) ois.readObject();
-//                }
-//                catch (ClassNotFoundException e) {
-//                    e.printStackTrace();
-//                }
-//                //init cooking process
-//                receiveOrder(order);
-//            }
-//            catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//            finally {
-//                try {
-//                    socket.close();
-//                }
-//                catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-//    }
+
 }

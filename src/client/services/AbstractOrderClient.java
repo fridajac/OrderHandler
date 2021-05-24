@@ -1,4 +1,4 @@
-package client;
+package client.services;
 
 import server.AbstractKitchenServer;
 import shared.Order;
@@ -8,7 +8,7 @@ import shared.OrderStatus;
 import java.util.Timer;
 
 public abstract class AbstractOrderClient {
-    private Order order = new Order();
+    public Order order = new Order();
     private AbstractKitchenServer kitchenServer;
     private Timer pollingTimer;
 

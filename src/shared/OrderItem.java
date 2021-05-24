@@ -1,8 +1,9 @@
 package shared;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public class OrderItem {
+public class OrderItem implements Serializable {
     private String itemID;
     private String name;
     private String description;
