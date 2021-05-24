@@ -1,7 +1,13 @@
+package server;
+
+import shared.Order;
+
+import java.util.concurrent.Callable;
+
 /**
  * Dummy task that sleeps and modifies the status of the order
  */
-public class CookingTask implements Runnable {
+public class CookingTask implements Callable {
 
     private Order order;
     private Status status;
@@ -11,13 +17,13 @@ public class CookingTask implements Runnable {
     }
 
     @Override
-    public void run() {
+    public Status call() {
         try {
             Thread.sleep(Randomizer.getRandom()); //random delay
         }
         catch (InterruptedException interruptedException) {
             interruptedException.printStackTrace();
         }
-        order.setStatus(status);
+        return Status.ACCEPTED;
     }
 }
