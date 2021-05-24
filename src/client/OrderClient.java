@@ -25,6 +25,7 @@ public class OrderClient extends AbstractOrderClient {
     public OrderClient(String ipAddress, int port) {
         this.ipAddress = ipAddress;
         this.port = port;
+
     }
 
     @Override

@@ -8,7 +8,7 @@ import shared.OrderStatus;
 import java.util.Timer;
 
 public abstract class AbstractOrderClient {
-    private Order order;
+    private Order order = new Order();
     private AbstractKitchenServer kitchenServer;
     private Timer pollingTimer;
 
@@ -16,7 +16,7 @@ public abstract class AbstractOrderClient {
         order.addOrderItem(item);
     }
 
-    public void removeItemToOrder(OrderItem item) {
+    public void removeItemFromOrder(OrderItem item) {
         order.removeOrderItem(item);
     }
 

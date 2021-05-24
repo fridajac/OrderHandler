@@ -7,7 +7,8 @@ public enum OrderStatus {
     Served("order served"),
     Cooking("order is being cooked"),
     NotSent("order is not sent"),
-    Ready("order is ready");
+    Ready("order is ready"),
+    BeingPrepared("order is being prepared");
 
     public final String text;
 
