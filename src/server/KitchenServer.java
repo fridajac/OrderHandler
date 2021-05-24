@@ -54,9 +54,13 @@ public class KitchenServer extends AbstractKitchenServer implements Runnable {
                 ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
                 try {
                     order = (Order) ois.readObject();
+                    receiveOrder(order);
                 }
                 catch (ClassNotFoundException e) {
                     e.printStackTrace();
+                }
+                catch (InterruptedException interruptedException) {
+                    interruptedException.printStackTrace();
                 }
                 //init cooking process
                 //receiveOrder(order);
@@ -84,6 +88,11 @@ public class KitchenServer extends AbstractKitchenServer implements Runnable {
     @Override
     public Future<OrderStatus> checkStatus(String orderID) throws InterruptedException {
         return null;
+
+       /**
+     * Note that the methods should sleep for a random duration before it returns a status.
+     * This is to simulate an actual server-call that might operate slowly.
+     */
     }
 
     @Override
