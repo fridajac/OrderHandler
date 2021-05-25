@@ -1,7 +1,8 @@
 package client.view;
 
-import client.ItemType;
-import client.controller.ClientController;
+import client.services.AbstractOrderClient;
+import client.services.OrderClient;
+import shared.OrderItem;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,7 +15,7 @@ import java.awt.event.ActionListener;
 public class GenericRestaurantForm {
 
     private JFrame frame;            // The Main window
-    private ClientController clientController;
+    private AbstractOrderClient orderClient;
 
     JLabel labelMenu;               // Label for menu section
     JLabel labelOrder;              // Label for Order section
@@ -46,8 +47,8 @@ public class GenericRestaurantForm {
     DefaultListModel<String> orderStatusModel;   // Stores a list of string that is displayed at orderStatusArea
     JList<String> orderStatusArea;               // To display status of the submitted order
 
-    public GenericRestaurantForm(ClientController clientController) {
-        this.clientController = clientController;
+    public GenericRestaurantForm(AbstractOrderClient orderClient) {
+        this.orderClient = orderClient;
     }
 
     /**
@@ -204,33 +205,34 @@ public class GenericRestaurantForm {
         menuItem3Button.addActionListener(listener);
         orderRemoveButton.addActionListener(listener);
         orderSubmitButton.addActionListener(listener);
-
     }
-
 
     private class ButtonListener implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == menuItem1Button) {
-                clientController.addItemToOrder(ItemType.ITEM1);
+                OrderItem item1 = new OrderItem("Sandwich", "Bread, meat, cheese, salat, vegetables, sauce", 23);
+                orderClient.addItemToOrder(item1);
                 orderCartModel.addElement("Sandwich");
             }
             if (e.getSource() == menuItem2Button) {
-                clientController.addItemToOrder(ItemType.ITEM2);
+                OrderItem item2 = new OrderItem("Borscht", "Beetroot, cabbage, potato, beef", 84);
+                orderClient.addItemToOrder(item2);
                 orderCartModel.addElement("Borscht");
             }
             if (e.getSource() == menuItem3Button) {
-                clientController.addItemToOrder(ItemType.ITEM3);
+                OrderItem item3 = new OrderItem("Coffee", "Hot, black, good", 18);
+                orderClient.addItemToOrder(item3);
                 orderCartModel.addElement("Coffee");
             }
             if (e.getSource() == orderRemoveButton) {
                 String valueToDelete = orderCartArea.getSelectedValue();
-                //clientController.removeItemsFromOrder();
                 orderCartModel.removeElement(valueToDelete);
+                //orderClient.removeItemToOrder(valueToDelete); TODO ska raderas från ordern
             }
-            if(e.getSource() == orderSubmitButton) {
-                clientController.submitOrder();
+            if (e.getSource() == orderSubmitButton) {
+                orderClient.submitOrder();
             }
         }
     }

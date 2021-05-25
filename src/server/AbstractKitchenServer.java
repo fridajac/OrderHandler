@@ -1,11 +1,13 @@
 package server;
 
+import shared.KitchenStatus;
 import shared.Order;
 import shared.OrderStatus;
 
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Think of this class as a remote server.
@@ -14,26 +16,26 @@ import java.util.concurrent.Future;
  */
 public abstract class AbstractKitchenServer {
 
-    private ExecutorService threadPool;
-    private Map<String, Order> orderMap;
+    ExecutorService threadPool;
+    Map<String, Order> orderMap;
 
     /**
      * This method should save the order to the map
-     * and return a confirmation that the order is received {@link OrderStatus#Received}
-     * or a rejection {@link OrderStatus#Rejected}
+     * and return a confirmation that the order is received {@link KitchenStatus#Received}
+     * or a rejection {@link KitchenStatus#Rejected}
      *
      * When an order is received, a {@link #cook(Order)} task should be launced in th {@link #threadPool}
      *
      * Note that the methods should sleep for a random duration before it returns a status.
      * This is to simulate an actual server-call that might operate slowly.
      */
-    abstract public Future<OrderStatus> receiveOrder(Order order) throws InterruptedException;
+    abstract public CompletableFuture<KitchenStatus> receiveOrder(Order order) throws InterruptedException;
 
     /**
      * Note that the methods should sleep for a random duration before it returns a status.
      * This is to simulate an actual server-call that might operate slowly.
      */
-    abstract public Future<OrderStatus> checkStatus(String orderID) throws InterruptedException;
+    abstract public CompletableFuture<OrderStatus> checkStatus(String orderID) throws InterruptedException;
 
     /**
      * Allows a client to picks up the order if it is ready {@link OrderStatus#Ready}.
@@ -42,7 +44,7 @@ public abstract class AbstractKitchenServer {
      * Note that the methods should sleep for a random duration before it returns a status.
      * This is to simulate an actual server-call that might operate slowly.
      */
-    abstract public Future<OrderStatus> serveOrder(String orderID) throws InterruptedException;
+    abstract public CompletableFuture<KitchenStatus> serveOrder(String orderID) throws InterruptedException;
 
     /**
      * Simulate cooking in this method.

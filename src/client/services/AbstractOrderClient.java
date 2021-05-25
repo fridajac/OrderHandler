@@ -3,20 +3,23 @@ package client.services;
 import server.AbstractKitchenServer;
 import shared.Order;
 import shared.OrderItem;
-import shared.OrderStatus;
 
+import java.util.Map;
 import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 public abstract class AbstractOrderClient {
-    public Order order = new Order();
+    private Order order;
     private AbstractKitchenServer kitchenServer;
-    private Timer pollingTimer;
+    Timer pollingTimer;
 
     public void addItemToOrder(OrderItem item) {
         order.addOrderItem(item);
     }
 
-    public void removeItemFromOrder(OrderItem item) {
+    public void removeItemToOrder(OrderItem item) {
         order.removeOrderItem(item);
     }
 

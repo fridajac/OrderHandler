@@ -25,11 +25,13 @@ public class OrderClient extends AbstractOrderClient {
     private Socket socket;
     private ObjectOutputStream oos;
     private ObjectInputStream ois;
+    private AbstractKitchenServer abstractKitchenServer;
 
-    public OrderClient(String ipAddress, int port) throws IOException {
+    public OrderClient(String ipAddress, int port, AbstractKitchenServer abstractKitchenServer) throws IOException {
         socket = new Socket(ipAddress, port);
         oos = new ObjectOutputStream(socket.getOutputStream());
         ois = new ObjectInputStream(socket.getInputStream());
+        this.abstractKitchenServer = abstractKitchenServer;
     }
 
     @Override
@@ -60,6 +62,7 @@ public class OrderClient extends AbstractOrderClient {
                     Order newOrder = (Order) ois.readObject();
                     if (order.getStatus() == OrderStatus.Ready) {
                         pickUpOrder();
+                        Thread.interrupted();
                     }
                 }
                 catch (IOException | ClassNotFoundException e) {
@@ -73,29 +76,6 @@ public class OrderClient extends AbstractOrderClient {
 
     @Override
     protected void pickUpOrder() {
-
+        //Start an asynchronous request to {@link AbstractKitchenServer#serveOrder(String)}
     }
-
-    /*@Override
-    public void pickUpOrder() {
-        //request order from server (serveOrder)
-        //get order returned
-        try {
-            Socket socket = new Socket(ipAddress, port);
-            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-            //oos.writeObject(request);
-            Order order = (Order) ois.readObject();
-            //print out time and status in GUI.
-        }
-        catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }*/
 }
