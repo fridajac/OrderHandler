@@ -87,14 +87,19 @@ public class KitchenServer extends AbstractKitchenServer implements Runnable {
      */
     @Override
     public CompletableFuture<KitchenStatus> receiveOrder(Order order) throws InterruptedException {
-        orderMap.put(order.getOrderID(), order); //saves the order to map
-        order.setStatus(OrderStatus.Received);
-        Thread.sleep(Randomizer.getRandom());
         CompletableFuture<KitchenStatus> completableFuture = new CompletableFuture<>();
-        threadPool.submit(() -> {
-            completableFuture.complete(KitchenStatus.Received);
-            cook(order);
-        });
+        if(order == null) {
+            completableFuture.complete(KitchenStatus.NotFound);
+        }
+        else {
+            orderMap.put(order.getOrderID(), order); //saves the order to map
+            order.setStatus(OrderStatus.Received);
+            Thread.sleep(Randomizer.getRandom());
+            threadPool.submit(() -> {
+                completableFuture.complete(KitchenStatus.Received);
+                cook(order);
+            });
+        }
         return completableFuture; //return kitchen status TODO could return "rejected", when?
     }
 
@@ -110,8 +115,16 @@ public class KitchenServer extends AbstractKitchenServer implements Runnable {
 
     @Override
     protected void cook(Order order) {
-        System.out.println("cooking area");
-
+        try {
+            Thread.sleep(Randomizer.getRandom());
+            CompletableFuture<OrderStatus> completableFuture = new CompletableFuture<>();
+            completableFuture.complete(OrderStatus.BeingPrepared);
+            Thread.sleep(Randomizer.getRandom());
+            completableFuture.complete(OrderStatus.Cooking);
+        }
+        catch (InterruptedException interruptedException) {
+            interruptedException.printStackTrace();
+        }
     }
 //
 //    @Override
