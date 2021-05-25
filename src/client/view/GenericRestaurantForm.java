@@ -213,8 +213,8 @@ public class GenericRestaurantForm {
         orderSubmitButton.addActionListener(listener);
     }
 
-    public void setStatus(String status) {
-        orderStatusModel.addElement(status);
+    public void setStatus(KitchenStatus status) {
+        orderStatusModel.addElement(status.text);
         //orderStatusModel.addElement("19:02:03 Order submitted");
     }
 

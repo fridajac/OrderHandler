@@ -50,15 +50,9 @@ public class OrderClient extends AbstractOrderClient {
                 oos.writeObject(order);
                 oos.flush();
                 startPollingServer(order.getOrderID());
-                ois = new ObjectInputStream(socket.getInputStream());
-                CompletableFuture<KitchenStatus> currentStatus =(CompletableFuture<KitchenStatus>) ois.readObject();
-                if(currentStatus!=null) {
-                    System.out.println("it worked" +currentStatus.get().text);
-                }
-                else {
-                    System.out.println("nothing got back, sorry");
-                }
-                //form.setStatus(currentStatus.toString());
+                CompletableFuture<KitchenStatus> currentStatus = abstractKitchenServer.receiveOrder(order);
+                KitchenStatus kitchenStatus = currentStatus.get();
+                form.setStatus(kitchenStatus);
             }
             catch (UnknownHostException e) {
                 e.printStackTrace();
@@ -66,14 +60,11 @@ public class OrderClient extends AbstractOrderClient {
             catch (IOException e) {
                 e.printStackTrace();
             }
-            catch (ClassNotFoundException e) {
-                e.printStackTrace();
+            catch (InterruptedException interruptedException) {
+                interruptedException.printStackTrace();
             }
             catch (ExecutionException e) {
                 e.printStackTrace();
-            }
-            catch (InterruptedException interruptedException) {
-                interruptedException.printStackTrace();
             }
         });
         submitThread.start();

@@ -60,14 +60,14 @@ public class KitchenServer extends AbstractKitchenServer implements Runnable {
                 ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
                 try {
                     order = (Order) ois.readObject();
-                    receiveOrder(order);
+                    //receiveOrder(order); Use direct method call instead
                 }
                 catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
-                catch (InterruptedException interruptedException) {
-                    interruptedException.printStackTrace();
-                }
+                //catch (InterruptedException interruptedException) {
+                  //  interruptedException.printStackTrace();
+               // }
             }
             catch (IOException e) {
                 e.printStackTrace();
@@ -95,7 +95,7 @@ public class KitchenServer extends AbstractKitchenServer implements Runnable {
             completableFuture.complete(KitchenStatus.Received);
             cook(order);
         });
-        return completableFuture; //return kitchenstatus TODO could return "rejected", when?
+        return completableFuture; //return kitchen status TODO could return "rejected", when?
     }
 
     @Override
