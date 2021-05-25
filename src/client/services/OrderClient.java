@@ -1,6 +1,5 @@
 package client.services;
 
-import client.services.AbstractOrderClient;
 import server.AbstractKitchenServer;
 import shared.Order;
 import shared.OrderStatus;

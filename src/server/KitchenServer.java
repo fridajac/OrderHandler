@@ -1,5 +1,6 @@
 package server;
 
+import shared.KitchenStatus;
 import shared.Order;
 import shared.OrderStatus;
 
@@ -7,6 +8,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -23,10 +26,10 @@ import java.util.concurrent.Future;
 public class KitchenServer extends AbstractKitchenServer implements Runnable {
 
     private ServerSocket serverSocket;
-    private Thread thread = new Thread(this); //thread that listen to new socket
+    private Thread thread = new Thread(this); //thread that listen to new client socket
     private boolean serverRunning;
-    ExecutorService kitchenThreadPool = Executors.newFixedThreadPool(3); //represent kitchen
-    ExecutorService cookingThreadPool = Executors.newFixedThreadPool(3); //represent cooking
+    ExecutorService threadPool;
+    Map<String, Order> orderMap;
 
     public KitchenServer(int port) {
         try {
@@ -61,41 +64,35 @@ public class KitchenServer extends AbstractKitchenServer implements Runnable {
                 catch (InterruptedException interruptedException) {
                     interruptedException.printStackTrace();
                 }
-                //init cooking process
-                //receiveOrder(order);
             }
             catch (IOException e) {
                 e.printStackTrace();
             }
-            finally {
-                try {
-                    socket.close();
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 
-
-    @Override
-    public Future<OrderStatus> receiveOrder(Order order) throws InterruptedException {
-        return null;
-    }
-
-    @Override
-    public Future<OrderStatus> checkStatus(String orderID) throws InterruptedException {
-        return null;
-
-       /**
+    /**
+     * This method should save the order to the map
+     * and return a confirmation that the order is received {@link KitchenStatus#Received}
+     * or a rejection {@link KitchenStatus#Rejected}
+     * <p>
+     * When an order is received, a {@link #cook(Order)} task should be launced in th {@link #threadPool}
+     * <p>
      * Note that the methods should sleep for a random duration before it returns a status.
      * This is to simulate an actual server-call that might operate slowly.
      */
+    @Override
+    public CompletableFuture<KitchenStatus> receiveOrder(Order order) throws InterruptedException {
+        return null;
     }
 
     @Override
-    public Future<OrderStatus> serveOrder(String orderID) throws InterruptedException {
+    public CompletableFuture<OrderStatus> checkStatus(String orderID) throws InterruptedException {
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<KitchenStatus> serveOrder(String orderID) throws InterruptedException {
         return null;
     }
 
