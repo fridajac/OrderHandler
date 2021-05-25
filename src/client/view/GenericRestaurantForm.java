@@ -2,12 +2,15 @@ package client.view;
 
 import client.services.AbstractOrderClient;
 import client.services.OrderClient;
+import shared.KitchenStatus;
 import shared.OrderItem;
+import shared.OrderStatus;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Date;
 
 /**
  * GUI-class
@@ -16,6 +19,7 @@ public class GenericRestaurantForm {
 
     private JFrame frame;            // The Main window
     private AbstractOrderClient orderClient;
+    private Date date;
 
     JLabel labelMenu;               // Label for menu section
     JLabel labelOrder;              // Label for Order section
@@ -49,6 +53,8 @@ public class GenericRestaurantForm {
 
     public GenericRestaurantForm(AbstractOrderClient orderClient) {
         this.orderClient = orderClient;
+        orderClient.setForm(this);
+        date = new Date();
     }
 
     /**
@@ -193,8 +199,8 @@ public class GenericRestaurantForm {
         orderStatusArea = new JList<String>(orderStatusModel);
         orderStatusArea.setBounds(620, 35, 250, 335);
         orderStatusArea.setBorder(BorderFactory.createLineBorder(Color.black));
-        orderStatusModel.addElement("19:02:03 Order submitted");
-        orderStatusModel.addElement("19:02:05 Order accepted");
+        //orderStatusModel.addElement("19:02:03 Order submitted");
+        //orderStatusModel.addElement("19:02:05 Order accepted");
         frame.add(orderStatusArea);
     }
 
@@ -205,6 +211,11 @@ public class GenericRestaurantForm {
         menuItem3Button.addActionListener(listener);
         orderRemoveButton.addActionListener(listener);
         orderSubmitButton.addActionListener(listener);
+    }
+
+    public void setStatus(String status) {
+        orderStatusModel.addElement(status);
+        //orderStatusModel.addElement("19:02:03 Order submitted");
     }
 
     private class ButtonListener implements ActionListener {

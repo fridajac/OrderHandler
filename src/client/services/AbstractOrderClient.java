@@ -1,5 +1,6 @@
 package client.services;
 
+import client.view.GenericRestaurantForm;
 import server.AbstractKitchenServer;
 import shared.Order;
 import shared.OrderItem;
@@ -11,7 +12,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.CompletableFuture;
 
 public abstract class AbstractOrderClient {
-    private Order order;
+    private Order order = new Order();
     private AbstractKitchenServer kitchenServer;
     Timer pollingTimer;
 
@@ -41,4 +42,6 @@ public abstract class AbstractOrderClient {
      * Start an asynchronous request to {@link AbstractKitchenServer#serveOrder(String)}
      */
     abstract protected void pickUpOrder();
+
+    public abstract void setForm(GenericRestaurantForm genericRestaurantForm);
 }

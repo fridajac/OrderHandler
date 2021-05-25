@@ -1,6 +1,8 @@
 package client.services;
 
+import client.view.GenericRestaurantForm;
 import server.AbstractKitchenServer;
+import shared.KitchenStatus;
 import shared.Order;
 import shared.OrderStatus;
 
@@ -27,14 +29,18 @@ public class OrderClient extends AbstractOrderClient {
     private ObjectOutputStream oos;
     private ObjectInputStream ois;
     private AbstractKitchenServer abstractKitchenServer;
-    private Order order;
+    private Order order = new Order();
+    private GenericRestaurantForm form;
 
     public OrderClient(String ipAddress, int port, AbstractKitchenServer abstractKitchenServer) throws IOException {
         socket = new Socket(ipAddress, port);
         oos = new ObjectOutputStream(socket.getOutputStream());
-        ois = new ObjectInputStream(socket.getInputStream());
         this.abstractKitchenServer = abstractKitchenServer;
-        order = new Order();
+    }
+
+    @Override
+    public void setForm(GenericRestaurantForm genericRestaurantForm) {
+        this.form = genericRestaurantForm;
     }
 
     @Override
@@ -44,11 +50,17 @@ public class OrderClient extends AbstractOrderClient {
                 oos.writeObject(order);
                 oos.flush();
                 startPollingServer(order.getOrderID());
+                ois = new ObjectInputStream(socket.getInputStream());
+                CompletableFuture<KitchenStatus> currentStatus =(CompletableFuture<KitchenStatus>) ois.readObject();
+                form.setStatus(currentStatus.toString());
             }
             catch (UnknownHostException e) {
                 e.printStackTrace();
             }
             catch (IOException e) {
+                e.printStackTrace();
+            }
+            catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
         });

@@ -3,11 +3,13 @@ package server;
 import shared.KitchenStatus;
 import shared.Order;
 import shared.OrderStatus;
+import shared.Randomizer;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -29,7 +31,7 @@ public class KitchenServer extends AbstractKitchenServer implements Runnable {
     private Thread thread = new Thread(this); //thread that listen to new client socket
     private boolean serverRunning;
     ExecutorService threadPool;
-    Map<String, Order> orderMap;
+    private Map<String, Order> orderMap = new HashMap<>();
 
     public KitchenServer(int port) {
         try {
@@ -83,6 +85,10 @@ public class KitchenServer extends AbstractKitchenServer implements Runnable {
      */
     @Override
     public CompletableFuture<KitchenStatus> receiveOrder(Order order) throws InterruptedException {
+        orderMap.put(order.getOrderID(), order);
+        Thread.sleep(Randomizer.getRandom());
+        order.setStatus(OrderStatus.Received);
+        //threadPool.submit(order);
         return null;
     }
 
