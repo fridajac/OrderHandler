@@ -4,123 +4,62 @@ import shared.KitchenStatus;
 import shared.Order;
 import shared.OrderStatus;
 import shared.Randomizer;
-
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
-/**
- * Receives a new order and should init the cooking process.
- * Use a threadpool to represent the kitchen and submit a dummy task that
- * just sleeps and modifies the status of an order.
- * Use a seprate thread pool for cooking in the Kitchen Server.
- * Add random sleep intervals to KitchenServer methods to represent network delay.
- * You may use a CompletableFuture object to set the return value of async with the complete()-method.
- * Use newFixedThreadPool(). myPool.submit(task) to submit a task for execution.
- */
-public class KitchenServer extends AbstractKitchenServer implements Runnable {
+public class KitchenServer extends AbstractKitchenServer {
 
-    private ServerSocket serverSocket;
-    private Thread thread = new Thread(this); //thread that listen to new client socket
-    private boolean serverRunning;
-    ExecutorService threadPool;
+    ExecutorService threadPool = Executors.newFixedThreadPool(3);
     private Map<String, Order> orderMap = new HashMap<>();
+    CompletableFuture<KitchenStatus> completableFutureKitchenStatus = new CompletableFuture<>();
 
-    public KitchenServer(int port) {
-        threadPool = Executors.newFixedThreadPool(3);
-        try {
-            serverSocket = new ServerSocket(port);
-            serverRunning = true;
-            thread.start();
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void shutdownServer() {
-        serverRunning = false;
-    }
-
-    @Override
-    public void run() {
-        Socket socket = null;
-        Order order = null;
-        while (serverRunning) {
-            try {
-                socket = serverSocket.accept();
-                ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-                try {
-                    order = (Order) ois.readObject();
-                    //receiveOrder(order); Use direct method call instead
-                }
-                catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-                //catch (InterruptedException interruptedException) {
-                  //  interruptedException.printStackTrace();
-               // }
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    /**
-     * This method should save the order to the map
-     * and return a confirmation that the order is received {@link KitchenStatus#Received}
-     * or a rejection {@link KitchenStatus#Rejected}
-     * <p>
-     * When an order is received, a {@link #cook(Order)} task should be launced in th {@link #threadPool}
-     * <p>
-     * Note that the methods should sleep for a random duration before it returns a status.
-     * This is to simulate an actual server-call that might operate slowly.
-     */
     @Override
     public CompletableFuture<KitchenStatus> receiveOrder(Order order) throws InterruptedException {
-        CompletableFuture<KitchenStatus> completableFuture = new CompletableFuture<>();
         if(order == null) {
-            completableFuture.complete(KitchenStatus.NotFound);
+            completableFutureKitchenStatus.complete(KitchenStatus.NotFound);
+            order.setStatus(OrderStatus.NotFound);
         }
         else {
             orderMap.put(order.getOrderID(), order); //saves the order to map
             order.setStatus(OrderStatus.Received);
             Thread.sleep(Randomizer.getRandom());
             threadPool.submit(() -> {
-                completableFuture.complete(KitchenStatus.Received);
+                completableFutureKitchenStatus.complete(KitchenStatus.Received);
+                order.setStatus(OrderStatus.Received);
                 cook(order);
             });
         }
-        return completableFuture; //return kitchen status TODO could return "rejected", when?
+        return completableFutureKitchenStatus; //return kitchen status TODO could return "rejected", when?
     }
 
     @Override
     public CompletableFuture<OrderStatus> checkStatus(String orderID) throws InterruptedException {
-        return null;
+        Order order = orderMap.get(orderID);
+        OrderStatus orderStatus = order.getStatus();
+        CompletableFuture<OrderStatus> completableFutureOrderStatus = new CompletableFuture<>();
+        completableFutureOrderStatus.complete(orderStatus);
+        return completableFutureOrderStatus;
     }
 
     @Override
     public CompletableFuture<KitchenStatus> serveOrder(String orderID) throws InterruptedException {
-        return null;
+        Thread.sleep(Randomizer.getRandom());
+        completableFutureKitchenStatus.complete(KitchenStatus.Served);
+        return completableFutureKitchenStatus;
     }
 
     @Override
     protected void cook(Order order) {
         try {
             Thread.sleep(Randomizer.getRandom());
-            CompletableFuture<OrderStatus> completableFuture = new CompletableFuture<>();
-            completableFuture.complete(OrderStatus.BeingPrepared);
+            completableFutureKitchenStatus.complete(KitchenStatus.Cooking);
+            order.setStatus(OrderStatus.BeingPrepared);
             Thread.sleep(Randomizer.getRandom());
-            completableFuture.complete(OrderStatus.Cooking);
+            order.setStatus(OrderStatus.Ready);
+            serveOrder(order.getOrderID());
         }
         catch (InterruptedException interruptedException) {
             interruptedException.printStackTrace();

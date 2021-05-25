@@ -1,14 +1,12 @@
 package shared;
 
 public enum OrderStatus {
-    Received("order received"),
-    Rejected("order rejected"),
-    NotFound("order not found"),
-    Served("order served"),
-    Cooking("order is being cooked"),
-    NotSent("order is not sent"),
-    Ready("order is ready"),
-    BeingPrepared("order is being prepared");
+    NotSent("not sent to the server"),
+    Received("received"),
+    BeingPrepared("preparing"),
+    Ready("ready"),
+    Served("served"),
+    NotFound("not found");
 
     public final String text;
 

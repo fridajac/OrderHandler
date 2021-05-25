@@ -25,16 +25,11 @@ import java.util.concurrent.ExecutionException;
 
 public class OrderClient extends AbstractOrderClient {
 
-    private Socket socket;
-    private ObjectOutputStream oos;
-    private ObjectInputStream ois;
     private AbstractKitchenServer abstractKitchenServer;
     private Order order = new Order();
     private GenericRestaurantForm form;
 
-    public OrderClient(String ipAddress, int port, AbstractKitchenServer abstractKitchenServer) throws IOException {
-        socket = new Socket(ipAddress, port);
-        oos = new ObjectOutputStream(socket.getOutputStream());
+    public OrderClient(AbstractKitchenServer abstractKitchenServer) {
         this.abstractKitchenServer = abstractKitchenServer;
     }
 
@@ -47,18 +42,11 @@ public class OrderClient extends AbstractOrderClient {
     public void submitOrder() {
         Thread submitThread = new Thread(() -> {
             try {
-                oos.writeObject(order);
-                oos.flush();
-                startPollingServer(order.getOrderID());
                 CompletableFuture<KitchenStatus> currentStatus = abstractKitchenServer.receiveOrder(order);
+                order.setSent(true);
                 KitchenStatus kitchenStatus = currentStatus.get();
-                form.setStatus(kitchenStatus);
-            }
-            catch (UnknownHostException e) {
-                e.printStackTrace();
-            }
-            catch (IOException e) {
-                e.printStackTrace();
+                form.setStatus(kitchenStatus.text);
+                startPollingServer(order.getOrderID());
             }
             catch (InterruptedException interruptedException) {
                 interruptedException.printStackTrace();
@@ -73,39 +61,42 @@ public class OrderClient extends AbstractOrderClient {
     @Override
     protected void startPollingServer(String orderId) {
         Thread pollingThread = new Thread(() -> {
-        TimerTask task = new TimerTask() {
-            public void run() {
-                System.out.println("polling for status");
-               // try {
-                    //CompletableFuture<OrderStatus> currentStatus = abstractKitchenServer.checkStatus(orderId);
-                    //OrderStatus status = currentStatus.get();
-                    //if (status == OrderStatus.Ready) {
-                       // pickUpOrder();
-                        //pollingThread.interrupt();
-                    //}
-                //}
-                //catch (InterruptedException | ExecutionException e) {
-                  //  e.printStackTrace();
-                //}
-            }
-        };
-        Timer timer = new Timer("Timer");
-        timer.scheduleAtFixedRate(task, 1000, 1000);
+            TimerTask task = new TimerTask() {
+                public void run() {
+                    System.out.println("polling for status");
+                    try {
+                        CompletableFuture<OrderStatus> currentStatus = abstractKitchenServer.checkStatus(orderId);
+                        OrderStatus status = currentStatus.get();
+                        form.setStatus(status.text);
+                        if (status == OrderStatus.Ready) {
+                            order.setDone(true);
+                            pickUpOrder();
+                        }
+                    }
+                    catch (InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
+                    }
+                }
+            };
+            Timer timer = new Timer("Timer");
+            timer.scheduleAtFixedRate(task, 1000, 1000);
         });
         pollingThread.start();
     }
 
     @Override
     protected void pickUpOrder() {
-        Thread pickUpThread = new Thread(() -> {
+        if (order.isDone()) {
+            Thread pickUpThread = new Thread(() -> {
            /* try {
                 //CompletableFuture<OrderStatus> order = abstractKitchenServer.serveOrder(order.getOrderID());
             }
             //catch (InterruptedException interruptedException) {
                 interruptedException.printStackTrace();
             }*/
-            //Start an asynchronous request to {@link AbstractKitchenServer#serveOrder(String)}
-        });
-        pickUpThread.start();
+                //Start an asynchronous request to {@link AbstractKitchenServer#serveOrder(String)}
+            });
+            pickUpThread.start();
+        }
     }
 }

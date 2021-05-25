@@ -1,6 +1,7 @@
 package shared;
 
 public enum KitchenStatus {
+
     Received("order received"),
     Rejected("order rejected"),
     NotFound("order not found"),
