@@ -1,6 +1,6 @@
-import client.services.AbstractOrderClient;
-import client.view.GenericRestaurantForm;
-import client.services.OrderClient;
+import client.AbstractOrderClient;
+import client.GenericRestaurantForm;
+import client.OrderClient;
 import server.AbstractKitchenServer;
 import server.KitchenServer;
 

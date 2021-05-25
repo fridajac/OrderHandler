@@ -1,15 +1,10 @@
-package client.services;
+package client;
 
-import client.view.GenericRestaurantForm;
 import server.AbstractKitchenServer;
 import shared.Order;
 import shared.OrderItem;
 
-import java.util.Map;
 import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.Future;
-import java.util.concurrent.CompletableFuture;
 
 public abstract class AbstractOrderClient {
     private Order order = new Order();

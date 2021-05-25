@@ -1,6 +1,5 @@
-package client.services;
+package client;
 
-import client.view.GenericRestaurantForm;
 import server.AbstractKitchenServer;
 import shared.*;
 
@@ -59,10 +58,10 @@ public class OrderClient extends AbstractOrderClient {
             TimerTask task = new TimerTask() {
                 public void run() {
                     boolean continuePolling = true;
-                    while (continuePolling){
+                    while (continuePolling) {
                         try {
                             CompletableFuture<OrderStatus> currentStatus = abstractKitchenServer.checkStatus(orderId);
-                            OrderStatus status = currentStatus.get(); //blocking until result?
+                            OrderStatus status = currentStatus.get();
                             if (status == OrderStatus.Ready) {
                                 order.setDone(true);
                                 pickUpOrder();
@@ -84,18 +83,16 @@ public class OrderClient extends AbstractOrderClient {
     @Override
     protected void pickUpOrder() {
         String orderId = order.getOrderID();
-        if (order.isDone()) {
-            Thread pickUpThread = new Thread(() -> {
-           try {
+        Thread pickUpThread = new Thread(() -> {
+            try {
                 CompletableFuture<KitchenStatus> order = abstractKitchenServer.serveOrder(orderId);
-                form.setStatus(KitchenStatus.Served.text);
+                KitchenStatus status = order.get();
+                form.setStatus(status.text);
             }
-            catch (InterruptedException interruptedException) {
+            catch (InterruptedException | ExecutionException interruptedException) {
                 interruptedException.printStackTrace();
             }
-                //Start an asynchronous request to {@link AbstractKitchenServer#serveOrder(String)}
-            });
-            pickUpThread.start();
-        }
+        });
+        pickUpThread.start();
     }
 }

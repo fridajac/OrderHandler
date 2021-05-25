@@ -1,6 +1,6 @@
 package server;
 
-import client.view.GenericRestaurantForm;
+import client.GenericRestaurantForm;
 import shared.KitchenStatus;
 import shared.Order;
 import shared.OrderStatus;

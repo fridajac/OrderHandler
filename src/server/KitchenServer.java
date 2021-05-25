@@ -1,6 +1,6 @@
 package server;
 
-import client.view.GenericRestaurantForm;
+import client.GenericRestaurantForm;
 import shared.KitchenStatus;
 import shared.Order;
 import shared.OrderStatus;
@@ -40,7 +40,7 @@ public class KitchenServer extends AbstractKitchenServer {
                 order.setStatus(OrderStatus.Received);
                 cook(order);
             });
-        return completableFutureKitchenStatus; //return kitchen status TODO could return "rejected", when?
+        return completableFutureKitchenStatus;
     }
 
     @Override
@@ -57,7 +57,7 @@ public class KitchenServer extends AbstractKitchenServer {
         Thread.sleep(Randomizer.getRandom());
         completableFutureKitchenStatus.complete(KitchenStatus.Served);
         form.setStatus(KitchenStatus.Served.text);
-        //orderMap.remove(orderID);
+        //orderMap.remove(orderID); TODO should be removed from orderMap
         return completableFutureKitchenStatus;
     }
 

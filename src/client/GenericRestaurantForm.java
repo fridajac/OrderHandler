@@ -1,6 +1,5 @@
-package client.view;
+package client;
 
-import client.services.AbstractOrderClient;
 import server.AbstractKitchenServer;
 import shared.OrderItem;
 
@@ -8,7 +7,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Date;
 
 /**
  * GUI-class
@@ -18,7 +16,6 @@ public class GenericRestaurantForm {
     private JFrame frame;            // The Main window
     private AbstractOrderClient orderClient;
     private AbstractKitchenServer kitchenServer;
-    private Date date;
 
     JLabel labelMenu;               // Label for menu section
     JLabel labelOrder;              // Label for Order section
@@ -55,7 +52,6 @@ public class GenericRestaurantForm {
         this.kitchenServer = kitchenServer;
         orderClient.setGUI(this);
         kitchenServer.setGUI(this);
-        date = new Date();
     }
 
     /**
@@ -215,6 +211,7 @@ public class GenericRestaurantForm {
     }
 
     public void setStatus(String status) {
+        //TODO ska ange korrekt klockslag
         orderStatusModel.addElement("19:02:03 " + status);
     }
 
@@ -240,7 +237,7 @@ public class GenericRestaurantForm {
             if (e.getSource() == orderRemoveButton) {
                 String valueToDelete = orderCartArea.getSelectedValue();
                 orderCartModel.removeElement(valueToDelete);
-                //orderClient.removeItemToOrder(valueToDelete); TODO ska raderas från ordern
+                //orderClient.removeItemToOrder(valueToDelete); TODO item ska även raderas från ordern
             }
             if (e.getSource() == orderSubmitButton) {
                 orderClient.submitOrder();
