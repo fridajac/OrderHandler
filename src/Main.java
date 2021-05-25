@@ -10,7 +10,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         AbstractKitchenServer kitchenServer = new KitchenServer(2555);
-        AbstractOrderClient orderClient = new OrderClient("localhost", 2555);
+        AbstractOrderClient orderClient = new OrderClient("localhost", 2555, kitchenServer);
         GenericRestaurantForm restaurant = new GenericRestaurantForm(orderClient);
         restaurant.Start();
 //        MainForm form = new MainForm();

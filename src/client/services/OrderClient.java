@@ -12,6 +12,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Represent a self-service app
@@ -26,21 +28,23 @@ public class OrderClient extends AbstractOrderClient {
     private ObjectOutputStream oos;
     private ObjectInputStream ois;
     private AbstractKitchenServer abstractKitchenServer;
+    private Order order;
 
     public OrderClient(String ipAddress, int port, AbstractKitchenServer abstractKitchenServer) throws IOException {
         socket = new Socket(ipAddress, port);
         oos = new ObjectOutputStream(socket.getOutputStream());
         ois = new ObjectInputStream(socket.getInputStream());
         this.abstractKitchenServer = abstractKitchenServer;
+        order = new Order();
     }
 
     @Override
     public void submitOrder() {
         Thread submitThread = new Thread(() -> {
             try {
-                oos.writeObject(super.order);
+                oos.writeObject(order);
                 oos.flush();
-                startPollingServer(super.order.getOrderID());
+                startPollingServer(order.getOrderID());
             }
             catch (UnknownHostException e) {
                 e.printStackTrace();
@@ -54,28 +58,40 @@ public class OrderClient extends AbstractOrderClient {
 
     @Override
     protected void startPollingServer(String orderId) {
+        Thread pollingThread = new Thread(() -> {
         TimerTask task = new TimerTask() {
             public void run() {
                 System.out.println("polling for status");
                 try {
-                    oos.writeObject(orderId);
-                    Order newOrder = (Order) ois.readObject();
-                    if (order.getStatus() == OrderStatus.Ready) {
+                    CompletableFuture<OrderStatus> currentStatus = abstractKitchenServer.checkStatus(orderId);
+                    OrderStatus status = currentStatus.get();
+                    if (status == OrderStatus.Ready) {
                         pickUpOrder();
                         Thread.interrupted();
                     }
                 }
-                catch (IOException | ClassNotFoundException e) {
+                catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 }
             }
         };
         Timer timer = new Timer("Timer");
         timer.scheduleAtFixedRate(task, 1000, 1000);
+        });
+        pollingThread.start();
     }
 
     @Override
     protected void pickUpOrder() {
-        //Start an asynchronous request to {@link AbstractKitchenServer#serveOrder(String)}
+        Thread pickUpThread = new Thread(() -> {
+           /* try {
+                //CompletableFuture<OrderStatus> order = abstractKitchenServer.serveOrder(order.getOrderID());
+            }
+            //catch (InterruptedException interruptedException) {
+                interruptedException.printStackTrace();
+            }*/
+            //Start an asynchronous request to {@link AbstractKitchenServer#serveOrder(String)}
+        });
+        pickUpThread.start();
     }
 }
