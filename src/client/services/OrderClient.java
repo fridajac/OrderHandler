@@ -58,16 +58,20 @@ public class OrderClient extends AbstractOrderClient {
         Thread pollingThread = new Thread(() -> {
             TimerTask task = new TimerTask() {
                 public void run() {
-                    try {
-                        CompletableFuture<OrderStatus> currentStatus = abstractKitchenServer.checkStatus(orderId);
-                        OrderStatus status = currentStatus.get(); //blocking until result?
-                        if (status == OrderStatus.Ready) {
-                            order.setDone(true);
-                            pickUpOrder();
+                    boolean continuePolling = true;
+                    while (continuePolling){
+                        try {
+                            CompletableFuture<OrderStatus> currentStatus = abstractKitchenServer.checkStatus(orderId);
+                            OrderStatus status = currentStatus.get(); //blocking until result?
+                            if (status == OrderStatus.Ready) {
+                                order.setDone(true);
+                                pickUpOrder();
+                                continuePolling = false;
+                            }
                         }
-                    }
-                    catch (InterruptedException | ExecutionException e) {
-                        e.printStackTrace();
+                        catch (InterruptedException | ExecutionException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
             };

@@ -1,6 +1,7 @@
 package client.view;
 
 import client.services.AbstractOrderClient;
+import server.AbstractKitchenServer;
 import shared.OrderItem;
 
 import javax.swing.*;
@@ -16,6 +17,7 @@ public class GenericRestaurantForm {
 
     private JFrame frame;            // The Main window
     private AbstractOrderClient orderClient;
+    private AbstractKitchenServer kitchenServer;
     private Date date;
 
     JLabel labelMenu;               // Label for menu section
@@ -48,9 +50,11 @@ public class GenericRestaurantForm {
     DefaultListModel<String> orderStatusModel;   // Stores a list of string that is displayed at orderStatusArea
     JList<String> orderStatusArea;               // To display status of the submitted order
 
-    public GenericRestaurantForm(AbstractOrderClient orderClient) {
+    public GenericRestaurantForm(AbstractOrderClient orderClient, AbstractKitchenServer kitchenServer) {
         this.orderClient = orderClient;
+        this.kitchenServer = kitchenServer;
         orderClient.setGUI(this);
+        kitchenServer.setGUI(this);
         date = new Date();
     }
 
@@ -211,10 +215,7 @@ public class GenericRestaurantForm {
     }
 
     public void setStatus(String status) {
-        if(!orderStatusModel.contains(status)) {
-            orderStatusModel.addElement("19:02:03" +status);
-        }
-        //orderStatusModel.addElement("19:02:03 Order submitted");
+        orderStatusModel.addElement("19:02:03 " + status);
     }
 
     private class ButtonListener implements ActionListener {

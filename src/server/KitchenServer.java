@@ -1,5 +1,6 @@
 package server;
 
+import client.view.GenericRestaurantForm;
 import shared.KitchenStatus;
 import shared.Order;
 import shared.OrderStatus;
@@ -13,31 +14,32 @@ import java.util.concurrent.Executors;
 public class KitchenServer extends AbstractKitchenServer {
 
     ExecutorService threadPool;
-    private Map<String, Order> orderMap;
+    private Map<String, Order> orderMap =  new HashMap<>();
     CompletableFuture<KitchenStatus> completableFutureKitchenStatus;
+    private GenericRestaurantForm form;
 
     public KitchenServer() {
-        orderMap = new HashMap<>();
         completableFutureKitchenStatus = new CompletableFuture<>();
         threadPool =  Executors.newFixedThreadPool(3);
     }
 
     @Override
+    public void setGUI(GenericRestaurantForm genericRestaurantForm) {
+        this.form = form;
+    }
+
+    @Override
     public CompletableFuture<KitchenStatus> receiveOrder(Order order) throws InterruptedException {
-        if(order == null) {
-            completableFutureKitchenStatus.complete(KitchenStatus.NotFound);
-            order.setStatus(OrderStatus.NotFound);
-        }
-        else {
             orderMap.put(order.getOrderID(), order); //saves the order to map
+        System.out.println(orderMap.size());
             order.setStatus(OrderStatus.Received);
             Thread.sleep(Randomizer.getRandom());
             threadPool.submit(() -> {
                 completableFutureKitchenStatus.complete(KitchenStatus.Received);
+                form.setStatus(KitchenStatus.Received.text);
                 order.setStatus(OrderStatus.Received);
                 cook(order);
             });
-        }
         return completableFutureKitchenStatus; //return kitchen status TODO could return "rejected", when?
     }
 
@@ -54,7 +56,8 @@ public class KitchenServer extends AbstractKitchenServer {
     public CompletableFuture<KitchenStatus> serveOrder(String orderID) throws InterruptedException {
         Thread.sleep(Randomizer.getRandom());
         completableFutureKitchenStatus.complete(KitchenStatus.Served);
-        orderMap.remove(orderID);
+        form.setStatus(KitchenStatus.Served.text);
+        //orderMap.remove(orderID);
         return completableFutureKitchenStatus;
     }
 
@@ -63,10 +66,10 @@ public class KitchenServer extends AbstractKitchenServer {
         try {
             Thread.sleep(Randomizer.getRandom());
             completableFutureKitchenStatus.complete(KitchenStatus.Cooking);
+            form.setStatus(KitchenStatus.Cooking.text);
             order.setStatus(OrderStatus.BeingPrepared);
             Thread.sleep(Randomizer.getRandom());
             order.setStatus(OrderStatus.Ready);
-            serveOrder(order.getOrderID());
         }
         catch (InterruptedException interruptedException) {
             interruptedException.printStackTrace();
