@@ -73,17 +73,17 @@ public class OrderClient extends AbstractOrderClient {
         TimerTask task = new TimerTask() {
             public void run() {
                 System.out.println("polling for status");
-                try {
-                    CompletableFuture<OrderStatus> currentStatus = abstractKitchenServer.checkStatus(orderId);
-                    OrderStatus status = currentStatus.get();
-                    if (status == OrderStatus.Ready) {
-                        pickUpOrder();
-                        Thread.interrupted();
-                    }
-                }
-                catch (InterruptedException | ExecutionException e) {
-                    e.printStackTrace();
-                }
+               // try {
+                    //CompletableFuture<OrderStatus> currentStatus = abstractKitchenServer.checkStatus(orderId);
+                    //OrderStatus status = currentStatus.get();
+                    //if (status == OrderStatus.Ready) {
+                       // pickUpOrder();
+                        //pollingThread.interrupt();
+                    //}
+                //}
+                //catch (InterruptedException | ExecutionException e) {
+                  //  e.printStackTrace();
+                //}
             }
         };
         Timer timer = new Timer("Timer");
