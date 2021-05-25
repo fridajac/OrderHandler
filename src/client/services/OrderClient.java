@@ -2,26 +2,13 @@ package client.services;
 
 import client.view.GenericRestaurantForm;
 import server.AbstractKitchenServer;
-import shared.KitchenStatus;
-import shared.Order;
-import shared.OrderStatus;
+import shared.*;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-/**
- * Represent a self-service app
- * Allows a user to assemble an order, submit it to the KitchenSever and output status of the order.
- * Send a request to KitchenServer through the network, GUI should stay responsive through async method calls.
- * For setting up a periodic task, you may use Timer.scheduleAtFiedRate togehter with TimerTask.
- */
 
 public class OrderClient extends AbstractOrderClient {
 
@@ -33,8 +20,16 @@ public class OrderClient extends AbstractOrderClient {
         this.abstractKitchenServer = abstractKitchenServer;
     }
 
+    public void addItemToOrder(OrderItem item) {
+        order.addOrderItem(item);
+    }
+
+    public void removeItemToOrder(OrderItem item) {
+        order.removeOrderItem(item);
+    }
+
     @Override
-    public void setForm(GenericRestaurantForm genericRestaurantForm) {
+    public void setGUI(GenericRestaurantForm genericRestaurantForm) {
         this.form = genericRestaurantForm;
     }
 
@@ -63,11 +58,9 @@ public class OrderClient extends AbstractOrderClient {
         Thread pollingThread = new Thread(() -> {
             TimerTask task = new TimerTask() {
                 public void run() {
-                    System.out.println("polling for status");
                     try {
                         CompletableFuture<OrderStatus> currentStatus = abstractKitchenServer.checkStatus(orderId);
-                        OrderStatus status = currentStatus.get();
-                        form.setStatus(status.text);
+                        OrderStatus status = currentStatus.get(); //blocking until result?
                         if (status == OrderStatus.Ready) {
                             order.setDone(true);
                             pickUpOrder();
@@ -78,22 +71,24 @@ public class OrderClient extends AbstractOrderClient {
                     }
                 }
             };
-            Timer timer = new Timer("Timer");
-            timer.scheduleAtFixedRate(task, 1000, 1000);
+            Timer timer = new Timer("PollingTimer");
+            timer.scheduleAtFixedRate(task, 3000, 1000);
         });
         pollingThread.start();
     }
 
     @Override
     protected void pickUpOrder() {
+        String orderId = order.getOrderID();
         if (order.isDone()) {
             Thread pickUpThread = new Thread(() -> {
-           /* try {
-                //CompletableFuture<OrderStatus> order = abstractKitchenServer.serveOrder(order.getOrderID());
+           try {
+                CompletableFuture<KitchenStatus> order = abstractKitchenServer.serveOrder(orderId);
+                form.setStatus(KitchenStatus.Served.text);
             }
-            //catch (InterruptedException interruptedException) {
+            catch (InterruptedException interruptedException) {
                 interruptedException.printStackTrace();
-            }*/
+            }
                 //Start an asynchronous request to {@link AbstractKitchenServer#serveOrder(String)}
             });
             pickUpThread.start();

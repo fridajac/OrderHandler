@@ -1,10 +1,7 @@
 package client.view;
 
 import client.services.AbstractOrderClient;
-import client.services.OrderClient;
-import shared.KitchenStatus;
 import shared.OrderItem;
-import shared.OrderStatus;
 
 import javax.swing.*;
 import java.awt.*;
@@ -53,7 +50,7 @@ public class GenericRestaurantForm {
 
     public GenericRestaurantForm(AbstractOrderClient orderClient) {
         this.orderClient = orderClient;
-        orderClient.setForm(this);
+        orderClient.setGUI(this);
         date = new Date();
     }
 
@@ -214,7 +211,9 @@ public class GenericRestaurantForm {
     }
 
     public void setStatus(String status) {
-        orderStatusModel.addElement(status);
+        if(!orderStatusModel.contains(status)) {
+            orderStatusModel.addElement("19:02:03" +status);
+        }
         //orderStatusModel.addElement("19:02:03 Order submitted");
     }
 

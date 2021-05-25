@@ -43,5 +43,5 @@ public abstract class AbstractOrderClient {
      */
     abstract protected void pickUpOrder();
 
-    public abstract void setForm(GenericRestaurantForm genericRestaurantForm);
+    public abstract void setGUI(GenericRestaurantForm genericRestaurantForm);
 }

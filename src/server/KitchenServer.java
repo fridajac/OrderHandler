@@ -12,9 +12,15 @@ import java.util.concurrent.Executors;
 
 public class KitchenServer extends AbstractKitchenServer {
 
-    ExecutorService threadPool = Executors.newFixedThreadPool(3);
-    private Map<String, Order> orderMap = new HashMap<>();
-    CompletableFuture<KitchenStatus> completableFutureKitchenStatus = new CompletableFuture<>();
+    ExecutorService threadPool;
+    private Map<String, Order> orderMap;
+    CompletableFuture<KitchenStatus> completableFutureKitchenStatus;
+
+    public KitchenServer() {
+        orderMap = new HashMap<>();
+        completableFutureKitchenStatus = new CompletableFuture<>();
+        threadPool =  Executors.newFixedThreadPool(3);
+    }
 
     @Override
     public CompletableFuture<KitchenStatus> receiveOrder(Order order) throws InterruptedException {
@@ -48,6 +54,7 @@ public class KitchenServer extends AbstractKitchenServer {
     public CompletableFuture<KitchenStatus> serveOrder(String orderID) throws InterruptedException {
         Thread.sleep(Randomizer.getRandom());
         completableFutureKitchenStatus.complete(KitchenStatus.Served);
+        orderMap.remove(orderID);
         return completableFutureKitchenStatus;
     }
 
@@ -65,29 +72,4 @@ public class KitchenServer extends AbstractKitchenServer {
             interruptedException.printStackTrace();
         }
     }
-//
-//    @Override
-//    public void receiveOrder(Order order) {
-//        //CookingTask cookingTask = new CookingTask(GetOrderTask()); //submit a dummy task
-//
-//        Future<Status> future = kitchenThreadPool.submit(cookingTask);
-//        //Status status = future.get();
-//        cook(cookingTask);
-//    }
-//
-//    @Override
-//    public void cook(CookingTask cookingTask) {
-//        cookingThreadPool.submit(cookingTask);
-//    }
-//
-//    @Override
-//    public void checkStatus(String string) {
-//
-//    }
-//
-//    @Override
-//    public void serveOrder(String string) {
-//
-//    }
-
 }
