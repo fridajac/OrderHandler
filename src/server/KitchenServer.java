@@ -7,6 +7,7 @@ import shared.Randomizer;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -34,6 +35,7 @@ public class KitchenServer extends AbstractKitchenServer implements Runnable {
     private Map<String, Order> orderMap = new HashMap<>();
 
     public KitchenServer(int port) {
+        threadPool = Executors.newFixedThreadPool(3);
         try {
             serverSocket = new ServerSocket(port);
             serverRunning = true;
@@ -85,11 +87,15 @@ public class KitchenServer extends AbstractKitchenServer implements Runnable {
      */
     @Override
     public CompletableFuture<KitchenStatus> receiveOrder(Order order) throws InterruptedException {
-        orderMap.put(order.getOrderID(), order);
-        Thread.sleep(Randomizer.getRandom());
+        orderMap.put(order.getOrderID(), order); //saves the order to map
         order.setStatus(OrderStatus.Received);
-        //threadPool.submit(order);
-        return null;
+        Thread.sleep(Randomizer.getRandom());
+        CompletableFuture<KitchenStatus> completableFuture = new CompletableFuture<>();
+        threadPool.submit(() -> {
+            completableFuture.complete(KitchenStatus.Received);
+            cook(order);
+        });
+        return completableFuture; //return kitchenstatus TODO could return "rejected", when?
     }
 
     @Override
@@ -104,6 +110,7 @@ public class KitchenServer extends AbstractKitchenServer implements Runnable {
 
     @Override
     protected void cook(Order order) {
+        System.out.println("cooking area");
 
     }
 //

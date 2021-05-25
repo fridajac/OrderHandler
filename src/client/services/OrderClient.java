@@ -52,7 +52,13 @@ public class OrderClient extends AbstractOrderClient {
                 startPollingServer(order.getOrderID());
                 ois = new ObjectInputStream(socket.getInputStream());
                 CompletableFuture<KitchenStatus> currentStatus =(CompletableFuture<KitchenStatus>) ois.readObject();
-                form.setStatus(currentStatus.toString());
+                if(currentStatus!=null) {
+                    System.out.println("it worked" +currentStatus.get().text);
+                }
+                else {
+                    System.out.println("nothing got back, sorry");
+                }
+                //form.setStatus(currentStatus.toString());
             }
             catch (UnknownHostException e) {
                 e.printStackTrace();
@@ -62,6 +68,12 @@ public class OrderClient extends AbstractOrderClient {
             }
             catch (ClassNotFoundException e) {
                 e.printStackTrace();
+            }
+            catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+            catch (InterruptedException interruptedException) {
+                interruptedException.printStackTrace();
             }
         });
         submitThread.start();
