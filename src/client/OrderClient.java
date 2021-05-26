@@ -3,6 +3,7 @@ package client;
 import server.AbstractKitchenServer;
 import shared.*;
 
+import javax.swing.*;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
@@ -34,19 +35,26 @@ public class OrderClient extends AbstractOrderClient {
 
     @Override
     public void submitOrder() {
-        Thread submitThread = new Thread(() -> {
-            try {
-                CompletableFuture<KitchenStatus> currentStatus = abstractKitchenServer.receiveOrder(order);
-                order.setSent(true);
-                KitchenStatus kitchenStatus = currentStatus.get();
-                form.setStatus(kitchenStatus.text);
-                startPollingServer(order.getOrderID());
-            }
-            catch (InterruptedException interruptedException) {
-                interruptedException.printStackTrace();
-            }
-            catch (ExecutionException e) {
-                e.printStackTrace();
+        Thread submitThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    CompletableFuture<KitchenStatus> currentStatus = abstractKitchenServer.receiveOrder(order);
+                    order.setSent(true);
+                    KitchenStatus kitchenStatus = currentStatus.get();
+                    SwingUtilities.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            form.setStatus(kitchenStatus.text);
+                        }
+                    });
+
+                    OrderClient.this.startPollingServer(order.getOrderID());
+                } catch (InterruptedException interruptedException) {
+                    interruptedException.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
             }
         });
         submitThread.start();
@@ -54,28 +62,30 @@ public class OrderClient extends AbstractOrderClient {
 
     @Override
     protected void startPollingServer(String orderId) {
-        Thread pollingThread = new Thread(() -> {
-            TimerTask task = new TimerTask() {
-                public void run() {
-                    boolean continuePolling = true;
-                    while (continuePolling) {
-                        try {
-                            CompletableFuture<OrderStatus> currentStatus = abstractKitchenServer.checkStatus(orderId);
-                            OrderStatus status = currentStatus.get();
-                            if (status == OrderStatus.Ready) {
-                                order.setDone(true);
-                                pickUpOrder();
-                                continuePolling = false;
+        Thread pollingThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                TimerTask task = new TimerTask() {
+                    public void run() {
+                        boolean continuePolling = true;
+                        while (continuePolling) {
+                            try {
+                                CompletableFuture<OrderStatus> currentStatus = abstractKitchenServer.checkStatus(orderId);
+                                OrderStatus status = currentStatus.get();
+                                if (status == OrderStatus.Ready) {
+                                    order.setDone(true);
+                                    pickUpOrder();
+                                    continuePolling = false;
+                                }
+                            } catch (InterruptedException | ExecutionException e) {
+                                e.printStackTrace();
                             }
                         }
-                        catch (InterruptedException | ExecutionException e) {
-                            e.printStackTrace();
-                        }
                     }
-                }
-            };
-            Timer timer = new Timer("PollingTimer");
-            timer.scheduleAtFixedRate(task, 3000, 1000);
+                };
+                Timer timer = new Timer("PollingTimer");
+                timer.scheduleAtFixedRate(task, 3000, 1000);
+            }
         });
         pollingThread.start();
     }
@@ -87,7 +97,15 @@ public class OrderClient extends AbstractOrderClient {
             try {
                 CompletableFuture<KitchenStatus> order = abstractKitchenServer.serveOrder(orderId);
                 KitchenStatus status = order.get();
-                form.setStatus(status.text);
+                SwingUtilities.invokeLater(new Runnable() {
+                                               @Override
+                                               public void run() {
+                                                   form.setStatus(status.text);
+                                               }
+                });
+
+
+                        System.out.println("mottagit färdig mat");
             }
             catch (InterruptedException | ExecutionException interruptedException) {
                 interruptedException.printStackTrace();

@@ -7,6 +7,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * GUI-class
@@ -211,8 +213,10 @@ public class GenericRestaurantForm {
     }
 
     public void setStatus(String status) {
-        //TODO ska ange korrekt klockslag
-        orderStatusModel.addElement("19:02:03 " + status);
+        //TODO ska ange korrekt klockslag---> Fixat
+        SimpleDateFormat formatter= new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss ");
+        Date date = new Date(System.currentTimeMillis());
+        orderStatusModel.addElement( formatter.format(date) + status);
     }
 
     private class ButtonListener implements ActionListener {

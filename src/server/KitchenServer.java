@@ -5,6 +5,8 @@ import shared.KitchenStatus;
 import shared.Order;
 import shared.OrderStatus;
 import shared.Randomizer;
+
+import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -66,7 +68,13 @@ public class KitchenServer extends AbstractKitchenServer {
         try {
             Thread.sleep(Randomizer.getRandom());
             completableFutureKitchenStatus.complete(KitchenStatus.Cooking);
-            form.setStatus(KitchenStatus.Cooking.text);
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    form.setStatus(KitchenStatus.Cooking.text);
+                }
+            });
+
             order.setStatus(OrderStatus.BeingPrepared);
             Thread.sleep(Randomizer.getRandom());
             order.setStatus(OrderStatus.Ready);
