@@ -31,13 +31,18 @@ public class KitchenServer extends AbstractKitchenServer {
     @Override
     public CompletableFuture<KitchenStatus> receiveOrder(Order order) throws InterruptedException {
         Thread.sleep(Randomizer.getRandom());
-        orderMap.put(order.getOrderID(), order); //saves the order to map
         CompletableFuture<KitchenStatus> completableFuture = new CompletableFuture<KitchenStatus>();
         receivingThreadPool.submit(() -> {
-            completableFuture.complete(KitchenStatus.Received);
-            order.setStatus(OrderStatus.Received);
-            System.out.println("now we will send the " + order.getOrderID() + " to the kitchen with thread " + Thread.currentThread().getName());
-            cook(order);
+            if (order == null || order.getOrderList().size() == 0) {
+                order.setStatus(OrderStatus.NotFound);
+                completableFuture.complete(KitchenStatus.Rejected);
+            }
+            else {
+                orderMap.put(order.getOrderID(), order); //saves the order to map
+                order.setStatus(OrderStatus.Received);
+                completableFuture.complete(KitchenStatus.Received);
+                cook(order);
+            }
         });
         Thread.sleep(Randomizer.getRandom());
         return completableFuture;

@@ -7,6 +7,6 @@ public class Randomizer {
     private static Random random = new Random ();
 
     public static int getRandom() {
-        return random.nextInt((6-4) +1) +4;
+        return random.nextInt((6000-4000) +1000) +4000;
     }
 }
