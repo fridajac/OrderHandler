@@ -35,25 +35,33 @@ public class OrderClient extends AbstractOrderClient {
 
     @Override
     public void submitOrder() {
-        Thread submitThread = new Thread(new Runnable() {
+        Thread submitThread = new Thread(new Runnable() { //async
+            KitchenStatus status;
+
             @Override
             public void run() {
                 try {
-                    CompletableFuture<KitchenStatus> currentStatus = abstractKitchenServer.receiveOrder(order);
+                    CompletableFuture<KitchenStatus> completableFuture = abstractKitchenServer.receiveOrder(order);
+                    status = completableFuture.get();
                     order.setSent(true);
-                    KitchenStatus kitchenStatus = currentStatus.get();
                     SwingUtilities.invokeLater(new Runnable() {
                         @Override
                         public void run() {
-                            form.setStatus(kitchenStatus.text);
+                            form.setStatus(status);
                         }
                     });
-
-                    OrderClient.this.startPollingServer(order.getOrderID());
-                } catch (InterruptedException interruptedException) {
+                }
+                catch (InterruptedException interruptedException) {
                     interruptedException.printStackTrace();
-                } catch (ExecutionException e) {
+                }
+                catch (ExecutionException e) {
                     e.printStackTrace();
+                }
+                if (status == KitchenStatus.Received) {
+                    OrderClient.this.startPollingServer(order.getOrderID());
+                }
+                else {
+                    return;
                 }
             }
         });
@@ -77,7 +85,8 @@ public class OrderClient extends AbstractOrderClient {
                                     pickUpOrder();
                                     continuePolling = false;
                                 }
-                            } catch (InterruptedException | ExecutionException e) {
+                            }
+                            catch (InterruptedException | ExecutionException e) {
                                 e.printStackTrace();
                             }
                         }
@@ -98,14 +107,12 @@ public class OrderClient extends AbstractOrderClient {
                 CompletableFuture<KitchenStatus> order = abstractKitchenServer.serveOrder(orderId);
                 KitchenStatus status = order.get();
                 SwingUtilities.invokeLater(new Runnable() {
-                                               @Override
-                                               public void run() {
-                                                   form.setStatus(status.text);
-                                               }
+                    @Override
+                    public void run() {
+                        form.setStatus(status);
+                    }
                 });
-
-
-                        System.out.println("mottagit färdig mat");
+                System.out.println("Food is received, we did it!!");
             }
             catch (InterruptedException | ExecutionException interruptedException) {
                 interruptedException.printStackTrace();
