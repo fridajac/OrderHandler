@@ -9,20 +9,18 @@ import shared.Randomizer;
 import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 public class KitchenServer extends AbstractKitchenServer {
 
-    ExecutorService threadPool;
-    private Map<String, Order> orderMap =  new HashMap<>();
-    CompletableFuture<KitchenStatus> completableFutureKitchenStatus;
+    private ExecutorService receivingThreadPool;
+    private ExecutorService cookingThreadPool;
+    private Map<String, Order> orderMap = new HashMap<>();
     private GenericRestaurantForm form;
 
     public KitchenServer() {
-        completableFutureKitchenStatus = new CompletableFuture<>();
-        threadPool =  Executors.newFixedThreadPool(3);
+        receivingThreadPool = Executors.newFixedThreadPool(3);
+        cookingThreadPool = Executors.newFixedThreadPool(3);
     }
 
     @Override
@@ -32,55 +30,55 @@ public class KitchenServer extends AbstractKitchenServer {
 
     @Override
     public CompletableFuture<KitchenStatus> receiveOrder(Order order) throws InterruptedException {
-            orderMap.put(order.getOrderID(), order); //saves the order to map
-        System.out.println(orderMap.size());
-            order.setStatus(OrderStatus.Received);
-            Thread.sleep(Randomizer.getRandom());
-            threadPool.submit(() -> {
-                completableFutureKitchenStatus.complete(KitchenStatus.Received);
-                form.setStatus(KitchenStatus.Received.text);
-                order.setStatus(OrderStatus.Received);
+        orderMap.put(order.getOrderID(), order); //saves the order to map
+        CompletableFuture<KitchenStatus> completableFuture = new CompletableFuture<KitchenStatus>();
+        receivingThreadPool.submit(() -> {
+            try {
+                Thread.sleep(Randomizer.getRandom());
+                completableFuture.complete(KitchenStatus.Received);
                 cook(order);
-            });
-        return completableFutureKitchenStatus;
+            }
+            catch (InterruptedException interruptedException) {
+                interruptedException.printStackTrace();
+            }
+        });
+        return completableFuture;
     }
 
     @Override
     public CompletableFuture<OrderStatus> checkStatus(String orderID) throws InterruptedException {
-        Order order = orderMap.get(orderID);
-        OrderStatus orderStatus = order.getStatus();
-        CompletableFuture<OrderStatus> completableFutureOrderStatus = new CompletableFuture<>();
-        completableFutureOrderStatus.complete(orderStatus);
-        return completableFutureOrderStatus;
+        Thread.sleep(Randomizer.getRandom());
+        CompletableFuture<OrderStatus> status = new CompletableFuture<OrderStatus>();
+        status.complete(orderMap.get(orderID).getStatus()); //sets the value to current status
+        return status;
     }
 
+    /**
+     * Method is called from client when OrderStatus is "Ready"
+     */
     @Override
     public CompletableFuture<KitchenStatus> serveOrder(String orderID) throws InterruptedException {
         Thread.sleep(Randomizer.getRandom());
-        completableFutureKitchenStatus.complete(KitchenStatus.Served);
-        form.setStatus(KitchenStatus.Served.text);
-        //orderMap.remove(orderID); TODO should be removed from orderMap
-        return completableFutureKitchenStatus;
+        orderMap.remove(orderID);
+        CompletableFuture<KitchenStatus> status = new CompletableFuture<KitchenStatus>();
+        status.complete(KitchenStatus.Served);
+        return status;
     }
 
     @Override
     protected void cook(Order order) {
-        try {
-            Thread.sleep(Randomizer.getRandom());
-            completableFutureKitchenStatus.complete(KitchenStatus.Cooking);
-            SwingUtilities.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-                    form.setStatus(KitchenStatus.Cooking.text);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(Randomizer.getRandom());
+                    cookingThreadPool.submit(new CookingTask(order)); //task that changes status of order
                 }
-            });
-
-            order.setStatus(OrderStatus.BeingPrepared);
-            Thread.sleep(Randomizer.getRandom());
-            order.setStatus(OrderStatus.Ready);
-        }
-        catch (InterruptedException interruptedException) {
-            interruptedException.printStackTrace();
-        }
+                catch (InterruptedException interruptedException) {
+                    interruptedException.printStackTrace();
+                }
+            }
+        });
     }
 }
+
