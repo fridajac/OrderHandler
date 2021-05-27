@@ -17,10 +17,9 @@ public class CookingTask implements Runnable {
         try {
             Thread.sleep(Randomizer.getRandom());
             System.out.println("inside cooking method with order");
-            Thread.sleep(Randomizer.getRandom());
             order.setStatus(OrderStatus.BeingPrepared);
             System.out.println("changes status of order to being prepared ");
-            Thread.sleep(Randomizer.getRandom());
+            Thread.sleep(Randomizer.getRandom()*3); //sleep longer
             order.setStatus(OrderStatus.Ready);
             System.out.println("changes status of order to ready");
         }

@@ -3,7 +3,6 @@ package client;
 import server.AbstractKitchenServer;
 import shared.*;
 
-import javax.swing.*;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
@@ -42,11 +41,10 @@ public class OrderClient extends AbstractOrderClient {
                 KitchenStatus status;
                 try {
                     form.setStatus(KitchenStatus.Sent);
-                    System.out.println("now we send new order to server");
+                    System.out.println("Now we send new order to server");
                     CompletableFuture<KitchenStatus> completableFuture = abstractKitchenServer.receiveOrder(order);
                     status = completableFuture.get();
                     form.setStatus(status);
-                    System.out.println(status.text + " status is just recevied in client from server.");
                     order.setSent(true);
                     if (status == KitchenStatus.Received) {
                         startPollingServer(order.getOrderID());
@@ -66,9 +64,10 @@ public class OrderClient extends AbstractOrderClient {
     @Override
     protected void startPollingServer(String orderId) {
         TimerTask task = new TimerTask() {
+            boolean continuePolling = true;
             public void run() {
-                boolean continuePolling = true;
-                do {
+                while (continuePolling) {
+                    System.out.println("Polling for status");
                     try {
                         CompletableFuture<OrderStatus> currentStatus = abstractKitchenServer.checkStatus(orderId);
                         OrderStatus status = currentStatus.get();
@@ -78,18 +77,18 @@ public class OrderClient extends AbstractOrderClient {
                         else if (status == OrderStatus.Ready) {
                             order.setDone(true);
                             pickUpOrder();
-                            System.out.println("picking up order");
+                            System.out.println("Picking up order");
                             continuePolling = false;
                         }
                     }
                     catch (InterruptedException | ExecutionException e) {
                         e.printStackTrace();
                     }
-                } while (continuePolling);
+                }
             }
         };
         Timer timer = new Timer("PollingTimer");
-        timer.scheduleAtFixedRate(task, 3000, 1000);
+        timer.scheduleAtFixedRate(task, 0, 1000);
     }
 
     @Override
