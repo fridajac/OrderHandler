@@ -2,11 +2,12 @@ package shared;
 
 public enum KitchenStatus {
 
-    Received("order received"),
-    Rejected("order rejected"),
-    NotFound("order not found"),
-    Served("order served"),
-    Cooking("order is being cooked");
+    Sent ("Order: sent to kitchen"),
+    Received("Order: received"),
+    Rejected("Order: rejected"),
+    NotFound("Order: not found"),
+    Served("Order: served"),
+    Cooking("Order: is being prepared");
 
     public final String text;
 

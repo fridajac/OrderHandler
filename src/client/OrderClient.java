@@ -41,20 +41,16 @@ public class OrderClient extends AbstractOrderClient {
             public void run() {
                 KitchenStatus status;
                 try {
+                    form.setStatus(KitchenStatus.Sent);
                     System.out.println("now we send new order to server");
                     CompletableFuture<KitchenStatus> completableFuture = abstractKitchenServer.receiveOrder(order);
                     status = completableFuture.get();
+                    form.setStatus(status);
                     System.out.println(status.text + " status is just recevied in client from server.");
                     order.setSent(true);
-                    if(status == KitchenStatus.Received) {
+                    if (status == KitchenStatus.Received) {
                         startPollingServer(order.getOrderID());
                     }
-                    SwingUtilities.invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            form.setStatus(status);
-                        }
-                    });
                 }
                 catch (InterruptedException interruptedException) {
                     interruptedException.printStackTrace();
@@ -69,35 +65,31 @@ public class OrderClient extends AbstractOrderClient {
 
     @Override
     protected void startPollingServer(String orderId) {
-        Thread pollingThread = new Thread(new Runnable() {
-            @Override
+        TimerTask task = new TimerTask() {
             public void run() {
-                System.out.println("started polling");
-                TimerTask task = new TimerTask() {
-                    public void run() {
-                        boolean continuePolling = true;
-                        while (continuePolling) {
-                            try {
-                                CompletableFuture<OrderStatus> currentStatus = abstractKitchenServer.checkStatus(orderId);
-                                OrderStatus status = currentStatus.get();
-                                if (status == OrderStatus.Ready) {
-                                    order.setDone(true);
-                                    pickUpOrder();
-                                    System.out.println("picking up order");
-                                    continuePolling = false;
-                                }
-                            }
-                            catch (InterruptedException | ExecutionException e) {
-                                e.printStackTrace();
-                            }
+                boolean continuePolling = true;
+                do {
+                    try {
+                        CompletableFuture<OrderStatus> currentStatus = abstractKitchenServer.checkStatus(orderId);
+                        OrderStatus status = currentStatus.get();
+                        if (status == OrderStatus.BeingPrepared) {
+                            form.setStatus(KitchenStatus.Cooking);
+                        }
+                        else if (status == OrderStatus.Ready) {
+                            order.setDone(true);
+                            pickUpOrder();
+                            System.out.println("picking up order");
+                            continuePolling = false;
                         }
                     }
-                };
-                Timer timer = new Timer("PollingTimer");
-                timer.scheduleAtFixedRate(task, 3000, 1000);
+                    catch (InterruptedException | ExecutionException e) {
+                        e.printStackTrace();
+                    }
+                } while (continuePolling);
             }
-        });
-        pollingThread.start();
+        };
+        Timer timer = new Timer("PollingTimer");
+        timer.scheduleAtFixedRate(task, 3000, 1000);
     }
 
     @Override
@@ -107,12 +99,7 @@ public class OrderClient extends AbstractOrderClient {
             try {
                 CompletableFuture<KitchenStatus> kitchenStatus = abstractKitchenServer.serveOrder(orderId);
                 KitchenStatus status = kitchenStatus.get();
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        form.setStatus(status);
-                    }
-                });
+                form.setStatus(status);
                 System.out.println("Food is received, we did it!!");
             }
             catch (InterruptedException | ExecutionException interruptedException) {

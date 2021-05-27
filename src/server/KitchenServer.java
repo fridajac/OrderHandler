@@ -16,16 +16,10 @@ public class KitchenServer extends AbstractKitchenServer {
     private ExecutorService receivingThreadPool;
     private ExecutorService cookingThreadPool;
     private Map<String, Order> orderMap = new HashMap<>();
-    private GenericRestaurantForm form;
 
     public KitchenServer() {
         receivingThreadPool = Executors.newFixedThreadPool(3);
         cookingThreadPool = Executors.newFixedThreadPool(3);
-    }
-
-    @Override
-    public void setGUI(GenericRestaurantForm genericRestaurantForm) {
-        this.form = form;
     }
 
     @Override
@@ -50,7 +44,9 @@ public class KitchenServer extends AbstractKitchenServer {
     @Override
     public CompletableFuture<OrderStatus> checkStatus(String orderID) throws InterruptedException {
         CompletableFuture<OrderStatus> status = new CompletableFuture<OrderStatus>();
-        status.complete(orderMap.get(orderID).getStatus()); //sets the value to current status
+        Order order = orderMap.get(orderID);
+        OrderStatus orderStatus = order.getStatus();
+        status.complete(orderStatus);
         Thread.sleep(Randomizer.getRandom());
         return status;
     }
@@ -60,7 +56,7 @@ public class KitchenServer extends AbstractKitchenServer {
      */
     @Override
     public CompletableFuture<KitchenStatus> serveOrder(String orderID) throws InterruptedException {
-        //orderMap.remove(orderID);
+        orderMap.remove(orderID);
         CompletableFuture<KitchenStatus> status = new CompletableFuture<KitchenStatus>();
         status.complete(KitchenStatus.Served);
         Thread.sleep(Randomizer.getRandom());
@@ -79,9 +75,8 @@ public class KitchenServer extends AbstractKitchenServer {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                cookingThreadPool.submit(new CookingTask(order)); //task that changes status of order
+                cookingThreadPool.submit(new CookingTask(order)); //task that changes status of order until ready
             }
         });
     }
 }
-

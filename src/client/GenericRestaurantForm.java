@@ -19,7 +19,6 @@ public class GenericRestaurantForm {
 
     private JFrame frame;            // The Main window
     private AbstractOrderClient orderClient;
-    private AbstractKitchenServer kitchenServer;
 
     JLabel labelMenu;               // Label for menu section
     JLabel labelOrder;              // Label for Order section
@@ -51,11 +50,9 @@ public class GenericRestaurantForm {
     DefaultListModel<String> orderStatusModel;   // Stores a list of string that is displayed at orderStatusArea
     JList<String> orderStatusArea;               // To display status of the submitted order
 
-    public GenericRestaurantForm(AbstractOrderClient orderClient, AbstractKitchenServer kitchenServer) {
+    public GenericRestaurantForm(AbstractOrderClient orderClient) {
         this.orderClient = orderClient;
-        this.kitchenServer = kitchenServer;
         orderClient.setGUI(this);
-        kitchenServer.setGUI(this);
     }
 
     /**
@@ -215,10 +212,9 @@ public class GenericRestaurantForm {
     }
 
     public void setStatus(KitchenStatus kitchenStatus) {
-        //TODO ska ange korrekt klockslag---> Fixat --> awesome!!snyggt!
-        SimpleDateFormat formatter = new SimpleDateFormat("yy:mm:dd HH:mm:ss ");
+        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss ");
         Date date = new Date(System.currentTimeMillis());
-        orderStatusModel.addElement(formatter.format(date) +" Order "+ kitchenStatus);
+        orderStatusModel.addElement(formatter.format(date) + kitchenStatus.text);
     }
 
     private class ButtonListener implements ActionListener {

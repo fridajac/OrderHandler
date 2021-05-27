@@ -52,6 +52,4 @@ public abstract class AbstractKitchenServer {
      * {@link OrderStatus#Received} -> {@link OrderStatus#BeingPrepared} -> {@link OrderStatus#Ready}
      */
     abstract protected void cook(Order order);
-
-    public abstract void setGUI(GenericRestaurantForm genericRestaurantForm);
 }
