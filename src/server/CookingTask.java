@@ -1,11 +1,8 @@
 package server;
 
-import shared.KitchenStatus;
 import shared.Order;
 import shared.OrderStatus;
 import shared.Randomizer;
-
-import java.util.concurrent.Callable;
 
 public class CookingTask implements Runnable {
 
@@ -18,11 +15,13 @@ public class CookingTask implements Runnable {
     @Override
     public void run() {
         try {
+            System.out.println("inside cooking method with order " + order.getOrderID());
             Thread.sleep(Randomizer.getRandom());
-            order.setStatus(OrderStatus.Received);
             order.setStatus(OrderStatus.BeingPrepared);
+            System.out.println("changes status of" + order.getOrderID() + " to being prepared ");
             Thread.sleep(Randomizer.getRandom());
             order.setStatus(OrderStatus.Ready);
+            System.out.println("changes status of" + order.getOrderID() + " to ready");
         }
         catch (InterruptedException interruptedException) {
             interruptedException.printStackTrace();

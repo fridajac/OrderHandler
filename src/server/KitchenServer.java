@@ -30,27 +30,24 @@ public class KitchenServer extends AbstractKitchenServer {
 
     @Override
     public CompletableFuture<KitchenStatus> receiveOrder(Order order) throws InterruptedException {
+        Thread.sleep(Randomizer.getRandom());
         orderMap.put(order.getOrderID(), order); //saves the order to map
         CompletableFuture<KitchenStatus> completableFuture = new CompletableFuture<KitchenStatus>();
         receivingThreadPool.submit(() -> {
-            try {
-                Thread.sleep(Randomizer.getRandom());
-                completableFuture.complete(KitchenStatus.Received);
-                System.out.println("now we will start cooking");
-                cook(order);
-            }
-            catch (InterruptedException interruptedException) {
-                interruptedException.printStackTrace();
-            }
+            completableFuture.complete(KitchenStatus.Received);
+            order.setStatus(OrderStatus.Received);
+            System.out.println("now we will send the " + order.getOrderID() + " to the kitchen with thread " + Thread.currentThread().getName());
+            cook(order);
         });
+        Thread.sleep(Randomizer.getRandom());
         return completableFuture;
     }
 
     @Override
     public CompletableFuture<OrderStatus> checkStatus(String orderID) throws InterruptedException {
-        Thread.sleep(Randomizer.getRandom());
         CompletableFuture<OrderStatus> status = new CompletableFuture<OrderStatus>();
         status.complete(orderMap.get(orderID).getStatus()); //sets the value to current status
+        Thread.sleep(Randomizer.getRandom());
         return status;
     }
 
@@ -59,26 +56,21 @@ public class KitchenServer extends AbstractKitchenServer {
      */
     @Override
     public CompletableFuture<KitchenStatus> serveOrder(String orderID) throws InterruptedException {
-        Thread.sleep(Randomizer.getRandom());
         orderMap.remove(orderID);
         CompletableFuture<KitchenStatus> status = new CompletableFuture<KitchenStatus>();
         status.complete(KitchenStatus.Served);
+        Thread.sleep(Randomizer.getRandom());
+        System.out.println("server returning cooked meal " + orderID + " to client");
         return status;
     }
 
     @Override
     protected void cook(Order order) {
-        System.out.println("let's start cooking");
+        System.out.println(order.getOrderID() + " has arrived in cooking method");
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                try {
-                    Thread.sleep(Randomizer.getRandom());
-                    cookingThreadPool.submit(new CookingTask(order)); //task that changes status of order
-                }
-                catch (InterruptedException interruptedException) {
-                    interruptedException.printStackTrace();
-                }
+                cookingThreadPool.submit(new CookingTask(order)); //task that changes status of order
             }
         });
     }

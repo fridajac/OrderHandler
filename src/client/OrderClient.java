@@ -9,7 +9,6 @@ import java.util.TimerTask;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-
 public class OrderClient extends AbstractOrderClient {
 
     private AbstractKitchenServer abstractKitchenServer;
@@ -44,7 +43,7 @@ public class OrderClient extends AbstractOrderClient {
                     System.out.println("now we send new order to server");
                     CompletableFuture<KitchenStatus> completableFuture = abstractKitchenServer.receiveOrder(order);
                     status = completableFuture.get();
-                    System.out.println(status.text +"is just recevied in client from server.");
+                    System.out.println(status.text +" status is just recevied in client from server.");
                     order.setSent(true);
                     SwingUtilities.invokeLater(new Runnable() {
                         @Override
@@ -60,7 +59,6 @@ public class OrderClient extends AbstractOrderClient {
                     e.printStackTrace();
                 }
                 if (status == KitchenStatus.Received) {
-                    System.out.println("now we start polling");
                     OrderClient.this.startPollingServer(order.getOrderID());
                 }
                 else {
@@ -76,6 +74,7 @@ public class OrderClient extends AbstractOrderClient {
         Thread pollingThread = new Thread(new Runnable() {
             @Override
             public void run() {
+                System.out.println("started polling");
                 TimerTask task = new TimerTask() {
                     public void run() {
                         boolean continuePolling = true;
@@ -86,6 +85,7 @@ public class OrderClient extends AbstractOrderClient {
                                 if (status == OrderStatus.Ready) {
                                     order.setDone(true);
                                     pickUpOrder();
+                                    System.out.println("picking up order");
                                     continuePolling = false;
                                 }
                             }
@@ -107,8 +107,8 @@ public class OrderClient extends AbstractOrderClient {
         String orderId = order.getOrderID();
         Thread pickUpThread = new Thread(() -> {
             try {
-                CompletableFuture<KitchenStatus> order = abstractKitchenServer.serveOrder(orderId);
-                KitchenStatus status = order.get();
+                CompletableFuture<KitchenStatus> kitchenStatus = abstractKitchenServer.serveOrder(orderId);
+                KitchenStatus status = kitchenStatus.get();
                 SwingUtilities.invokeLater(new Runnable() {
                     @Override
                     public void run() {

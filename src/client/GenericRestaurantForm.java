@@ -2,6 +2,7 @@ package client;
 
 import server.AbstractKitchenServer;
 import shared.KitchenStatus;
+import shared.Order;
 import shared.OrderItem;
 
 import javax.swing.*;
@@ -215,9 +216,9 @@ public class GenericRestaurantForm {
 
     public void setStatus(KitchenStatus kitchenStatus) {
         //TODO ska ange korrekt klockslag---> Fixat --> awesome!!snyggt!
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss ");
+        SimpleDateFormat formatter = new SimpleDateFormat("yy:mm:dd HH:mm:ss ");
         Date date = new Date(System.currentTimeMillis());
-        orderStatusModel.addElement(formatter.format(date) + kitchenStatus);
+        orderStatusModel.addElement(formatter.format(date) +" Order "+ kitchenStatus);
     }
 
     private class ButtonListener implements ActionListener {
