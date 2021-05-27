@@ -237,9 +237,10 @@ public class GenericRestaurantForm {
                 orderCartModel.addElement("Coffee");
             }
             if (e.getSource() == orderRemoveButton) {
-                String valueToDelete = orderCartArea.getSelectedValue();
-                orderCartModel.removeElement(valueToDelete);
-                //orderClient.removeItemToOrder(valueToDelete); TODO item ska även raderas från ordern
+                int valueToDelete = orderCartArea.getSelectedIndex();
+                 orderCartModel.remove(valueToDelete);
+                orderClient.removeTtemFromOrderIndex(valueToDelete);
+
             }
             if (e.getSource() == orderSubmitButton) {
                 orderClient.submitOrder();

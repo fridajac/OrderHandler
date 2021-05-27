@@ -39,4 +39,6 @@ public abstract class AbstractOrderClient {
     abstract protected void pickUpOrder();
 
     public abstract void setGUI(GenericRestaurantForm genericRestaurantForm);
+
+    public abstract void removeTtemFromOrderIndex(int valueToDelete);
 }

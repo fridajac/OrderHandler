@@ -62,4 +62,8 @@ public class Order implements Serializable {
     public String[] getNamesFromOrderList() {
         return orderList.stream().map(item -> item.getName()).toArray(String[]::new);
     }
+
+    public void removeOrderItemIndex(int valueToDelete) {
+        orderList.remove(valueToDelete);
+    }
 }

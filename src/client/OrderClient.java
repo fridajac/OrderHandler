@@ -26,6 +26,11 @@ public class OrderClient extends AbstractOrderClient {
         order.removeOrderItem(item);
     }
 
+    public void removeTtemFromOrderIndex(int valueToDelete) {
+        order.removeOrderItemIndex(valueToDelete);
+    }
+
+
     @Override
     public void setGUI(GenericRestaurantForm genericRestaurantForm) {
         this.form = genericRestaurantForm;
