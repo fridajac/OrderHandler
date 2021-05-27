@@ -7,6 +7,6 @@ public class Randomizer {
     private static Random random = new Random ();
 
     public static int getRandom() {
-        return random.nextInt(6-3 +3);
+        return random.nextInt((6-4) +1) +4;
     }
 }

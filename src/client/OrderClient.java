@@ -41,8 +41,10 @@ public class OrderClient extends AbstractOrderClient {
             @Override
             public void run() {
                 try {
+                    System.out.println("now we send new order to server");
                     CompletableFuture<KitchenStatus> completableFuture = abstractKitchenServer.receiveOrder(order);
                     status = completableFuture.get();
+                    System.out.println(status.text +"is just recevied in client from server.");
                     order.setSent(true);
                     SwingUtilities.invokeLater(new Runnable() {
                         @Override
@@ -58,6 +60,7 @@ public class OrderClient extends AbstractOrderClient {
                     e.printStackTrace();
                 }
                 if (status == KitchenStatus.Received) {
+                    System.out.println("now we start polling");
                     OrderClient.this.startPollingServer(order.getOrderID());
                 }
                 else {

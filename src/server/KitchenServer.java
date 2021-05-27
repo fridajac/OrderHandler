@@ -36,6 +36,7 @@ public class KitchenServer extends AbstractKitchenServer {
             try {
                 Thread.sleep(Randomizer.getRandom());
                 completableFuture.complete(KitchenStatus.Received);
+                System.out.println("now we will start cooking");
                 cook(order);
             }
             catch (InterruptedException interruptedException) {
@@ -67,6 +68,7 @@ public class KitchenServer extends AbstractKitchenServer {
 
     @Override
     protected void cook(Order order) {
+        System.out.println("let's start cooking");
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
