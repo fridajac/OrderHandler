@@ -30,7 +30,6 @@ public class KitchenServer extends AbstractKitchenServer {
 
     @Override
     public CompletableFuture<KitchenStatus> receiveOrder(Order order) throws InterruptedException {
-        Thread.sleep(Randomizer.getRandom());
         CompletableFuture<KitchenStatus> completableFuture = new CompletableFuture<KitchenStatus>();
         receivingThreadPool.submit(() -> {
             if (order == null || order.getOrderList().size() == 0) {
@@ -61,17 +60,22 @@ public class KitchenServer extends AbstractKitchenServer {
      */
     @Override
     public CompletableFuture<KitchenStatus> serveOrder(String orderID) throws InterruptedException {
-        orderMap.remove(orderID);
+        //orderMap.remove(orderID);
         CompletableFuture<KitchenStatus> status = new CompletableFuture<KitchenStatus>();
         status.complete(KitchenStatus.Served);
         Thread.sleep(Randomizer.getRandom());
-        System.out.println("server returning cooked meal " + orderID + " to client");
+        System.out.println("server returning cooked meal to client");
         return status;
     }
 
     @Override
     protected void cook(Order order) {
-        System.out.println(order.getOrderID() + " has arrived in cooking method");
+        try {
+            Thread.sleep(Randomizer.getRandom());
+        }
+        catch (InterruptedException interruptedException) {
+            interruptedException.printStackTrace();
+        }
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
