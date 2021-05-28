@@ -4,10 +4,17 @@ import shared.Order;
 import shared.OrderStatus;
 import shared.Randomizer;
 
+/**
+ * Dummy task that sleeps for a random range of seconds and then changes status of an order
+ */
 public class CookingTask implements Runnable {
 
     private Order order;
 
+    /**
+     * Constructor that takes in the specific order being handled
+     * @param order the current order
+     */
     public CookingTask(Order order) {
         this.order = order;
     }

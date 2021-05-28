@@ -6,6 +6,9 @@ import server.KitchenServer;
 
 import java.io.IOException;
 
+/**
+ * Class that start the program by creating instances of server, client and GUI
+ */
 public class Main {
 
     public static void main(String[] args) throws IOException {
@@ -13,6 +16,5 @@ public class Main {
         AbstractOrderClient orderClient = new OrderClient(kitchenServer);
         GenericRestaurantForm restaurant = new GenericRestaurantForm(orderClient);
         restaurant.Start();
-//        MainForm form = new MainForm();
     }
 }

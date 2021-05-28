@@ -1,6 +1,5 @@
 package server;
 
-import client.GenericRestaurantForm;
 import shared.KitchenStatus;
 import shared.Order;
 import shared.OrderStatus;
@@ -11,10 +10,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
 
+/**
+ * Server that handles an order and changes status of it until it's ready
+ */
 public class KitchenServer extends AbstractKitchenServer {
 
-    private ExecutorService receivingThreadPool;
-    private ExecutorService cookingThreadPool;
+    private ExecutorService receivingThreadPool; //thread pool handling new orders
+    private ExecutorService cookingThreadPool; //thread pool handling cooking task
     private Map<String, Order> orderMap = new HashMap<>();
 
     public KitchenServer() {
@@ -44,24 +46,20 @@ public class KitchenServer extends AbstractKitchenServer {
     @Override
     public CompletableFuture<OrderStatus> checkStatus(String orderID) throws InterruptedException {
         Order order = orderMap.get(orderID);
-        OrderStatus orderStatus = order.getStatus();
-        CompletableFuture<OrderStatus> status = CompletableFuture.supplyAsync(() -> orderStatus);
-        //status.completeAsync(() -> orderStatus);
+        OrderStatus orderStatus = order.getStatus(); //get current order status
+        CompletableFuture<OrderStatus> status = CompletableFuture.supplyAsync(() -> orderStatus); //status could be ready, received or being prepared
         Thread.sleep(Randomizer.getRandom());
         return status;
     }
 
-    /**
-     * Method is called from client when OrderStatus is "Ready"
-     */
     @Override
     public CompletableFuture<KitchenStatus> serveOrder(String orderID) throws InterruptedException {
-        orderMap.get(orderID).setStatus(OrderStatus.Served);
+        orderMap.get(orderID).setStatus(OrderStatus.Served); //changes status of current order to served
         orderMap.remove(orderID);
         CompletableFuture<KitchenStatus> status = CompletableFuture.supplyAsync(() -> KitchenStatus.Served);
         Thread.sleep(Randomizer.getRandom());
         System.out.println("Server returning cooked meal to client");
-        return status;
+        return status; //return status to client
     }
 
     @Override
@@ -75,7 +73,7 @@ public class KitchenServer extends AbstractKitchenServer {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                cookingThreadPool.submit(new CookingTask(order)); //task that changes status of order until ready
+                cookingThreadPool.submit(new CookingTask(order)); //dummy task that changes status of order until ready
             }
         });
     }

@@ -38,7 +38,7 @@ public class OrderClient extends AbstractOrderClient {
 
     @Override
     public void submitOrder() {
-        Thread submitThread = new Thread(new Runnable() { //async
+        Thread submitThread = new Thread(new Runnable() { //async by creating a new thread
             KitchenStatus status;
 
             @Override

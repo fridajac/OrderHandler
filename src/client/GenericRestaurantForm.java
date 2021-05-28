@@ -50,6 +50,10 @@ public class GenericRestaurantForm {
     DefaultListModel<String> orderStatusModel;   // Stores a list of string that is displayed at orderStatusArea
     JList<String> orderStatusArea;               // To display status of the submitted order
 
+    /**
+     * Constructor for defining current client
+     * @param orderClient client handling sending orders to server
+     */
     public GenericRestaurantForm(AbstractOrderClient orderClient) {
         this.orderClient = orderClient;
         orderClient.setGUI(this);
@@ -172,8 +176,6 @@ public class GenericRestaurantForm {
         orderCartArea.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         orderCartArea.setBounds(340, 35, 250, 250);
         orderCartArea.setBorder(BorderFactory.createLineBorder(Color.black));
-        //orderCartModel.addElement("Sandwich");
-        //orderCartModel.addElement("Coffee");
         frame.add(orderCartArea);
 
         orderRemoveButton = new JButton();
@@ -211,6 +213,10 @@ public class GenericRestaurantForm {
         orderSubmitButton.addActionListener(listener);
     }
 
+    /**
+     * Gets called from client every time a order status should be updated
+     * @param kitchenStatus a new status regarding an order
+     */
     public void setStatus(KitchenStatus kitchenStatus) {
         SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss ");
         Date date = new Date(System.currentTimeMillis());
