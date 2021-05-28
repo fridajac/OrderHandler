@@ -43,10 +43,10 @@ public class KitchenServer extends AbstractKitchenServer {
 
     @Override
     public CompletableFuture<OrderStatus> checkStatus(String orderID) throws InterruptedException {
-        CompletableFuture<OrderStatus> status = new CompletableFuture<OrderStatus>();
         Order order = orderMap.get(orderID);
         OrderStatus orderStatus = order.getStatus();
-        status.complete(orderStatus);
+        CompletableFuture<OrderStatus> status = CompletableFuture.supplyAsync(() -> orderStatus);
+        //status.completeAsync(() -> orderStatus);
         Thread.sleep(Randomizer.getRandom());
         return status;
     }
@@ -58,8 +58,7 @@ public class KitchenServer extends AbstractKitchenServer {
     public CompletableFuture<KitchenStatus> serveOrder(String orderID) throws InterruptedException {
         orderMap.get(orderID).setStatus(OrderStatus.Served);
         orderMap.remove(orderID);
-        CompletableFuture<KitchenStatus> status = new CompletableFuture<KitchenStatus>();
-        status.complete(KitchenStatus.Served);
+        CompletableFuture<KitchenStatus> status = CompletableFuture.supplyAsync(() -> KitchenStatus.Served);
         Thread.sleep(Randomizer.getRandom());
         System.out.println("Server returning cooked meal to client");
         return status;
