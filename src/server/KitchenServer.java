@@ -28,12 +28,12 @@ public class KitchenServer extends AbstractKitchenServer {
         receivingThreadPool.submit(() -> {
             if (order == null || order.getOrderList().size() == 0) {
                 order.setStatus(OrderStatus.NotFound);
-                completableFuture.complete(KitchenStatus.Rejected);
+                completableFuture.completeAsync(() -> KitchenStatus.Rejected);
             }
             else {
                 orderMap.put(order.getOrderID(), order); //saves the order to map
                 order.setStatus(OrderStatus.Received);
-                completableFuture.complete(KitchenStatus.Received);
+                completableFuture.completeAsync(() -> KitchenStatus.Received);
                 cook(order);
             }
         });
