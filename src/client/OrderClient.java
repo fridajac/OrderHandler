@@ -70,14 +70,16 @@ public class OrderClient extends AbstractOrderClient {
     protected void startPollingServer(String orderId) {
         TimerTask task = new TimerTask() {
             boolean continuePolling = true;
+            boolean displayCookingStatus = true;
             public void run() {
                 while (continuePolling) {
                     System.out.println("Polling for status");
                     try {
                         CompletableFuture<OrderStatus> currentStatus = abstractKitchenServer.checkStatus(orderId);
                         OrderStatus status = currentStatus.get();
-                        if (status == OrderStatus.BeingPrepared) {
+                        if (status == OrderStatus.BeingPrepared && displayCookingStatus) {
                             form.setStatus(KitchenStatus.Cooking);
+                            displayCookingStatus = false;
                         }
                         else if (status == OrderStatus.Ready) {
                             order.setDone(true);
